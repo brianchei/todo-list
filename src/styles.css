@@ -56,10 +56,17 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ui.js */
 
+/* PAGE */
+.page {
+  height: 100vh;
+}
+
 /* HEADER */
 header {
     display: flex;
     justify-content: space-between;
+
+    height: 10%;
 
     background-color: yellow;
 }
@@ -81,12 +88,14 @@ header {
 .content {
     display: grid;
     grid-template-columns: 2fr 8fr;
+    
+    height: 90%;
 }
 
 /* ** SIDEBAR ** */
 .sidebar {
     display: grid;
-    grid-template-rows: 4fr 2fr 4fr;
+    grid-template-rows: 4.5fr 1fr 4.5fr;
 
     background-color: orange;
 
@@ -103,6 +112,7 @@ ul {
     display: grid;
     gap: 8px;
     list-style-type: none;
+    background-color: white;
 }
 
 .add-project {
@@ -110,6 +120,8 @@ ul {
 
     width: 32px;
     height: 32px;
+
+    background-color: aqua;
 }
 
 .projects {
@@ -117,6 +129,8 @@ ul {
 
     gap: 8px;
     list-style-type: none;
+
+    background-color: brown;
 }
 
 /* ** MAIN ** */
