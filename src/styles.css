@@ -54,6 +54,62 @@ h1, h2, h3, h4, h5, h6 {
   isolation: isolate;
 }
 
+/* root (universal rules/variables) */
+:root {
+    /* Color Palette */
+    --primary-color: #AED9E0;
+    --primary-light: #FAF3DD;
+    --primary-dark: #5E6472;
+    --accent-color: #FFA69E;
+    --accent-light: #B8F2E6;
+    --button-green: #C1E1C1;
+    --button-red: #FAA0A0;
+    
+    --text-primary: #1a2332;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    
+    --bg-white: #ffffff;
+    --bg-light: #f8f9fa;
+    --bg-cream: #faf8f5;
+    --border-light: #e2e8f0;
+    
+    /* Typography */
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Archivo', sans-serif;
+    
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-2xl: 4rem;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(26, 95, 122, 0.08);
+    --shadow-md: 0 4px 16px rgba(26, 95, 122, 0.12);
+    --shadow-lg: 0 8px 32px rgba(26, 95, 122, 0.16);
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link {
+  color: black;
+}
+
+a:visited {
+  color: black;
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  border-radius: 8px;
+}
+
 /* ui.js */
 
 /* PAGE */
@@ -65,22 +121,30 @@ h1, h2, h3, h4, h5, h6 {
 header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     height: 10%;
 
-    background-color: yellow;
+    font-family: var(--font-display);
+
+    background-color: var(--primary-color);
 }
 
 .menu {
-    background-color: blue;
+  background-color: transparent;
+  border: none;
+  margin-left: 16px;
+    /* background-color: blue; */
 }
 
-.title {
-    background-color: red;
+h1.title {
+  padding: 16px;
+  font-family: var(--font-display);
+    /* background-color: red; */
 }
 
 .account {
-    background-color: green;
+    /* background-color: green; */
     padding: 8px;
 }
 
@@ -89,6 +153,8 @@ header {
     display: grid;
     grid-template-columns: 2fr 8fr;
     
+    font-family: var(--font-body);
+
     height: 90%;
 }
 
@@ -97,10 +163,10 @@ header {
     display: grid;
     grid-template-rows: 4.5fr 1fr 4.5fr;
 
-    background-color: orange;
+    background-color: var(--accent-color);
 
     gap: 16px;
-    padding: 8px;
+    padding: 16px;
 }
 
 ul {
@@ -110,18 +176,32 @@ ul {
 
 .current {
     display: grid;
+    grid-template-rows: repeat(4, 1fr);
+
     gap: 8px;
     list-style-type: none;
-    background-color: white;
+    /* background-color: white; */
+}
+
+.inbox, .today, .week, .month, .all, .school, .work, .hobbies, .faith {
+  display: flex;
+  gap: 8px;
 }
 
 .add-project {
-    display: flex;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
 
+.add-project > button {
     width: 32px;
     height: 32px;
 
-    background-color: aqua;
+    border-radius: 8px;
+
+    /* background-color: aqua; */
+    background-color: var(--button-green);
 }
 
 .projects {
@@ -130,10 +210,138 @@ ul {
     gap: 8px;
     list-style-type: none;
 
-    background-color: brown;
+    /* background-color: brown; */
+
 }
 
 /* ** MAIN ** */
 .main {
-    background-color: purple;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 8px;
+  background-color: var(--primary-dark);
+}
+
+.task-container {
+  display: flex;
+
+  gap: 16px;
+  flex-flow: column wrap;
+}
+
+.add-task {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.add-task > button {
+  height: 32px;
+  width: 32px;
+
+  background-color: var(--button-green);
+
+  border-radius: 8px;
+}
+
+.add-task > p {
+  color: white;
+}
+
+.task {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 8px;
+
+
+  border: 0.5px solid black;
+  border-radius: 8px;
+
+  margin-bottom: 16px;
+}
+
+.task-expanded {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 2fr;
+  grid-template-areas: 
+    "left right"
+    "description description";
+  
+  padding: 8px;
+
+  gap: 8px;
+
+  border: 0.5px solid black;
+  border-radius: 8px;
+
+  margin-bottom: 16px;
+}
+
+.task-expanded > .left {
+  grid-area: left;
+}
+
+.task-expanded > .right {
+  grid-area: right;
+  justify-self: end;
+}
+
+.task-expanded > .description {
+  grid-area: description;
+}
+
+.task, .task-expanded {
+  background-color: var(--primary-light);
+}
+
+.task > .left, .task > .right, .task-expanded > .left, .task-expanded > .right {
+  display: flex;
+
+  gap: 8px;
+  align-items: center;
+}
+
+.priority {
+  border: 2px solid black;
+  border-radius: 4px;
+}
+
+.checkbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: var(--button-green);
+
+  height: 32px;
+  width: 32px;
+
+  border: 1px solid black;
+  border-radius: 4px;
+}
+
+.bible-verse {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+
+  padding: 8px 16px;
+  
+  color: white;
+}
+
+.bible-verse > .verse {
+  width: 75%;
+}
+
+.bible-verse > .location {
+
 }
