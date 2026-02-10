@@ -1,3 +1,21 @@
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../fonts/Montserrat-Thin.woff2') format('woff2'),
+        url('../fonts/Montserrat-Thin.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Rubik';
+    src: url('../Rubik-Light.woff2') format('woff2'),
+        url('../Rubik-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* CSS Reset -Josh Comeau */
 /* 1. Use a more-intuitive box-sizing model */
 *, *::before, *::after {
@@ -75,8 +93,8 @@ h1, h2, h3, h4, h5, h6 {
     --border-light: #e2e8f0;
     
     /* Typography */
-    --font-display: 'Cormorant Garamond', serif;
-    --font-body: 'Archivo', sans-serif;
+    --font-display: 'Montserrat', serif;
+    --font-body: 'Rubik', sans-serif;
     
     /* Spacing */
     --spacing-xs: 0.5rem;
@@ -127,7 +145,7 @@ header {
 
     font-family: var(--font-display);
 
-    background-color: var(--primary-color);
+    /* background-color: var(--accent-color); */
 }
 
 .menu {
@@ -148,6 +166,14 @@ h1.title {
     padding: 8px;
 }
 
+.banner {
+  height: 10%;
+  width: 100%;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
 /* CONTENT */
 .content {
     display: grid;
@@ -163,10 +189,13 @@ h1.title {
     display: grid;
     grid-template-rows: 4.5fr 1fr 4.5fr;
 
-    background-color: var(--accent-color);
+    background-color: var(--primary-color);
 
     gap: 16px;
     padding: 16px;
+
+    font-family: var(--font-display);
+    font-weight: 900;
 }
 
 ul {
@@ -185,6 +214,7 @@ ul {
 
 .inbox, .today, .week, .month, .all, .school, .work, .hobbies, .faith {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
@@ -310,8 +340,16 @@ ul {
 }
 
 .priority {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 24px;
+  height: 24px;
   border: 2px solid black;
   border-radius: 4px;
+
+  background-color: var(--button-green);
 }
 
 .checkbox {
