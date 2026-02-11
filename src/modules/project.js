@@ -3,12 +3,20 @@
 - export project
 */
 
-
-/* Features
-
-*/
-
-
 /* Pseudocode
+CLASS Project
+    INITIALIZE title, todos
 
+    SET name
+    GET name
+
+    SET todos
+    GET todos
+
+    ADD todo
+    DELETE todo
+
+    GET todo
+
+    CONTAINS todo
 */
