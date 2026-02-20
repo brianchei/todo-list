@@ -344,10 +344,10 @@ export default class UI {
         let priority = task.getPriority();
         let dueDate = task.getDueDate();
 
-        let task = document.createElement('.div');
-        task.classList.add('task');
+        let toAdd = document.createElement('.div');
+        toAdd.classList.add('task');
 
-        task.innerHTML = `
+        toAdd.innerHTML = `
         <div class="left">
             <div class="priority">` + priority + `</div>
                 <p class="title">` + title + `</p>
@@ -359,7 +359,7 @@ export default class UI {
             <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
         </div>`
 
-        tasks.appendChild(task);
+        tasks.appendChild(toAdd);
     }
     deleteTask(title) {
         let toDelete = document.querySelector('.' + title);
