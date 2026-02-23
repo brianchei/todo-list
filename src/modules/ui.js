@@ -54,9 +54,9 @@ CLASS UI
 
 export default class UI {
     constructor() {
-        this.header = document.createElement('header');
-        this.sidebar = document.createElement('div');
-        this.content = document.createElement('div');
+        this.header = createHeader();
+        this.sidebar = createSidebar();
+        this.content = createContent();
     }
 
     // LOADING CONTENT
@@ -67,6 +67,13 @@ export default class UI {
 
     // maybe rename to displayDom ?? or loadHomepage
     displayHome() {
+        displayHeader();
+        displaySidebar();
+        displayContent();
+
+
+
+        /*
         // display header
         let header = document.createElement('header');
         header.innerHTML = `
@@ -190,16 +197,263 @@ export default class UI {
         let contentContainer = document.createElement('div');
         contentContainer.innerHTML = sidebar.innerHTML + '\n' + content.innerHTML;
 
+        */
+
+        /*
         // append to body
-        let body = document.querySelector('body');
-        body.append(header, contentContainer);
+        let page = document.querySelector('.page');
+        page.append(header, contentContainer);
+        */
     }
+
+    createHeader() {
+        let header = document.createElement('header');
+
+        let banner = document.createElement('img');
+        banner.classList.add('banner');
+        banner.src = 'images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        banner.alt = banner;
+
+        let menu = document.createElement('button');
+        menu.classList.add('menu');
+
+        let menuIcon = document.createElement('img');
+        menuIcon.src = 'images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        menuIcon.alt = 'menu';
+        menuIcon.width = '32px';
+
+        menu.appendChild(menuIcon);
+
+        let heading = document.createElement('h1');
+        heading.classList.add('title');
+        heading.textContent = 'LORD WILLING';
+
+        let account = document.createElement('button');
+        account.classList.add('account');
+
+        let accountIcon = document.createElement('img');
+        accountIcon.src = 'images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        accountIcon.alt = 'account';
+        accountIcon.width = '64px';
+
+        account.appendChild(accountIcon);
+
+
+        header.append(banner, menu, heading, account);
+
+        return header;
+
+    }
+
+    createSidebar() {
+        let sidebar = document.createElement('div');
+        sidebar.classList.add('sidebar');
+
+        // current projects
+        let current = document.createElement('ul');
+        current.classList.add('current');
+
+        let currentProjects = ['inbox', 'today', 'week', 'month'];
+        let currentImagePaths = ['images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24', 'images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg'];
+
+        for (projectName of currentProjects) {
+            let li = document.createElement('li');
+
+            let div = document.createElement('div');
+            div.classList.add(projectName);
+
+            let img = document.createElement('img');
+            img.src = currentImagePaths[currentProjects.indexOf(projectName)];
+            img.width = '32px';
+
+            let link = document.createElement('link');
+            // link.href = TODO
+            link.textContent = projectName.toUpperCase();
+
+            div.append(img, link);
+            li.append(div);
+            current.append(li);
+        }
+
+        // add project
+        let addProject = document.createElement('div');
+        addProject.classList.add('add-project');
+        addProject.textContent = 'PROJECTS';
+        let addProjectButton = document.createElement('button');
+        addProjectButton.textContent = '+';
+
+        addProject.append(addProjectButton);
+
+        // default projects
+        let defaults = document.createElement('ul');
+
+        let defaultProjects = ['all', 'school', 'work', 'hobbies', 'faith'];
+        let defaultImagePaths = ['images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg'];
+
+        for (projectName of defaultProjects) {
+            let li = document.createElement('li');
+
+            let div = document.createElement('div');
+            div.classList.add(projectName);
+
+            let img = document.createElement('img');
+            img.src = defaultImagePaths[defaultProjects.indexOf(projectName)];
+            img.width = '32px';
+
+            let link = document.createElement('a');
+            // link.href = TODO
+            link.textContent = projectName;
+
+            div.append(img, link);
+            li.append(div);
+            defaults.append(li);
+        }
+
+        sidebar.append(current, addProject, defaults);
+
+        return sidebar;
+    }
+
+    createContent() {
+        let main = document.createElement('div');
+        main.classList.add('main');
+
+        // task container
+        let taskContainer = document.createElement('div');
+        taskContainer.classList.add('task-container');
+
+        // container elements
+        let heading = document.createElement('h2');
+        heading.classList.add('tasks');
+        heading.textContent = 'TASKS';
+
+        let addTask = document.createElement('div');
+        addTask.classList.add('add-task');
+
+        let addTaskButton = document.createElement('button');
+        addTaskButton.textContent = '+';
+
+        let addTaskText = document.createElement('p');
+        addTaskText.textContent = 'ADD TASK';
+
+        addTask.append(addTaskButton, addTaskText);
+
+        // task (call function)
+        function createTask(setPriority, setTitle, setDate, setDescription) {
+            let task = document.createElement('div');
+            task.classList.add('task');
+
+            // left
+            let taskLeft = document.createElement('div');
+            taskLeft.classList.add('left');
+
+            let priority = document.createElement('div');
+            priority.classList.add('priority');
+            priority.textContent = setPriority;
+
+            let title = document.createElement('p');
+            title.classList.add('title');
+            title.textContent = setTitle;
+
+            let dropdownButton = document.createElement('button');
+            dropdownButton.classList.add('dropdown');
+            let dropdownIcon = document.createElement('img');
+            dropdownIcon.src = 'images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+            dropdownIcon.alt = 'drop-down'
+            dropdownButton.append(dropdownIcon);
+
+            let deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete');
+            let deleteIcon = document.createElement('img');
+            deleteIcon.src = 'images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+            deleteIcon.alt = 'delete';
+            deleteButton.append(deleteIcon);
+
+            taskLeft.append(priority, title, dropdownButton, deleteButton);
+
+            // right
+            let taskRight = document.createElement('div');
+            taskRight.classList.add('right');
+
+            let date = document.createElement('p');
+            date.classList.add('date')
+            date.textContent = setDate;
+
+            let checkbox = document.createElement('div');
+            checkbox.classList.add('checkbox');
+
+            let checkboxIcon = document.createElement('img');
+            checkboxIcon.src = 'images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+            checkboxIcon.alt = 'checkbox';
+
+            taskRight.append(date, checkbox);
+
+            // description
+            let description = document.createElement('p');
+            description.classList.add('description');
+            description.textContent = setDescription;
+
+            task.append(taskLeft, taskRight);
+            if (setDescription) {
+                task.append(description);
+            }
+
+            return task;
+        }
+
+        let task = createTask('G', 'PAY BILLS', '2/3/2025');
+
+        // task expanded
+        let taskExpanded = createTask('G', 'PAY BILLS', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
+        
+        // build container
+        taskContainer.append(heading, addTask, task, taskExpanded);
+
+
+        // bible verse
+        let bibleVerse = document.createElement('div');
+        bibleVerse.classList.add('bible-verse');
+
+        let verse = document.createElement('p');
+        verse.classList.add('verse');
+        verse.textContent = 'Come now, you who say, “Today or tomorrow we will go into such and such a town and spend a year there and trade and make a profit”— yet you do not know what tomorrow will bring. What is your life? For you are a mist that appears for a little time and then vanishes. Instead you ought to say, “If the Lord wills, we will live and do this or that.';
+
+        let location = document.createElement('p');
+        location.classList.add('location');
+        location.textContent = 'James 4:13-15';
+
+        bibleVerse.append(verse, location);
+
+        // build main
+        main.append(taskContainer, bibleVerse);
+
+        return main;
+    }
+
+
+    displayHeader() {
+        let body = document.querySelector('body');
+
+        body.append(createHeader());
+    }
+
+    displaySidebar() {
+
+    }
+
+    displayContent() {
+
+    }
+
 
     addPageEventListeners() {
 
     }
 
-    displaySidebar() {
+    showSidebar() {
+
+
+        /*
         let sidebar = document.createElement(div);
         sidebar.classList.add('sidebar');
         sidebar.innerHTML = `
@@ -262,6 +516,7 @@ export default class UI {
                         </div>
                     </li>
                 </ul>`;
+                */
     }
     hideSidebar() {
         let sidebar = document.querySelector('.sidebar');
