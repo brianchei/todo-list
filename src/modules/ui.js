@@ -54,13 +54,13 @@ CLASS UI
 
 export default class UI {
     constructor() {
+        let page = document.createElement('div');
+        page.classList.add(page);
+        document.body.append(page);
         this.header = createHeader();
         this.sidebar = createSidebar();
-        this.content = createContent();
+        this.main = createMain();
     }
-
-    // GLOBAL VARIABLES
-    body = document.querySelector('body');
 
     // LOADING CONTENT
 
@@ -70,9 +70,9 @@ export default class UI {
 
     // maybe rename to displayDom ?? or loadHomepage
     displayHome() {
-        displayHeader();
-        displaySidebar();
-        displayContent();
+        this.displayHeader();
+        this.displaySidebar();
+        this.displayMain();
     }
 
     createHeader() {
@@ -125,7 +125,7 @@ export default class UI {
         let currentProjects = ['inbox', 'today', 'week', 'month'];
         let currentImagePaths = ['images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24', 'images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg'];
 
-        for (projectName of currentProjects) {
+        for (let projectName of currentProjects) {
             let li = document.createElement('li');
 
             let div = document.createElement('div');
@@ -159,7 +159,7 @@ export default class UI {
         let defaultProjects = ['all', 'school', 'work', 'hobbies', 'faith'];
         let defaultImagePaths = ['images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg'];
 
-        for (projectName of defaultProjects) {
+        for (let projectName of defaultProjects) {
             let li = document.createElement('li');
 
             let div = document.createElement('div');
@@ -183,7 +183,7 @@ export default class UI {
         return sidebar;
     }
 
-    createContent() {
+    createMain() {
         let main = document.createElement('div');
         main.classList.add('main');
 
@@ -207,10 +207,10 @@ export default class UI {
 
         addTask.append(addTaskButton, addTaskText);
 
-        let task = createTask('G', 'PAY BILLS', '2/3/2025');
+        let task = this.createTask('G', 'PAY BILLS', '2/3/2025');
 
         // task expanded
-        let taskExpanded = createTask('G', 'PAY BILLS', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
+        let taskExpanded = this.createTask('G', 'PAY BILLS', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
         
         // build container
         taskContainer.append(heading, addTask, task, taskExpanded);
@@ -300,15 +300,27 @@ export default class UI {
     }
 
     displayHeader() {
-        this.body.append(createHeader());
+        page.append(this.createHeader()); // or this.header
     }
 
     displaySidebar() {
-        this.body.append(createSidebar());
+        if (document.querySelector(content)) { 
+            let content = document.createElement('div');
+            content.classList.add('content');
+        }
+        content = document.querySelector('.content');
+        content.append(this.createSidebar()); // or this.sidebar
+        page.append(content);
     }
 
-    displayContent() {
-        this.body.append(createContent());
+    displayMain() {
+        if (document.querySelector(content)) { 
+            let content = document.createElement('div');
+            content.classList.add('content');
+        }
+        content = document.querySelector('.content');
+        content.append(this.createMain()); // or this.main
+        page.append(content);
     }
 
 

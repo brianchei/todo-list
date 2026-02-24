@@ -7,11 +7,6 @@ module.exports = () => `<!DOCTYPE html>
 </head>
 <body>
     <div class="page">
-        <header></header>
-        <div class="content">
-            <div class="sidebar"></div>
-            <div class="main"></div>
-        </div>
     </div>
 </body>
 </html>`;
