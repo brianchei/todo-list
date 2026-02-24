@@ -59,6 +59,9 @@ export default class UI {
         this.content = createContent();
     }
 
+    // GLOBAL VARIABLES
+    body = document.querySelector('body');
+
     // LOADING CONTENT
 
     // CREATING/DELETING CONTENT
@@ -70,140 +73,6 @@ export default class UI {
         displayHeader();
         displaySidebar();
         displayContent();
-
-
-
-        /*
-        // display header
-        let header = document.createElement('header');
-        header.innerHTML = `
-        <img class="banner" src="images/henrique-ferreira-QjOiTg459jI-unsplash.jpg" alt="banner">
-            <button class="menu">
-                <img src="images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="menu" width="32px">
-            </button>
-            <h1 class="title">LORD WILLING</h1>
-            <img class="account" src="images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="account" width="64px">
-            <!--Photo by <a href="https://unsplash.com/@rickpsd?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Henrique Ferreira</a> on <a href="https://unsplash.com/photos/layered-blue-mountains-fade-into-a-soft-pink-sky-QjOiTg459jI?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>-->`;
-
-        // display sidebar
-        let sidebar = document.createElement('div');
-        sidebar.classList.add('sidebar');
-        sidebar.innerHTML = `
-        <div class="sidebar">
-            <ul class="current">
-                <li>
-                    <div class="inbox">
-                        <img src="images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="inbox" width="32px">
-                        <a href="">INBOX</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="today">
-                        <img src="images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="today" width="32px">
-                        <a href="">TODAY</a>
-                       </div>
-                </li>
-                <li>
-                    <div class="week">
-                        <img src="images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="week" width="32px">
-                        <a href="">WEEK</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="month">
-                        <img src="images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="month" width="32px">
-                        <a href="">MONTH</a>
-                    </div>
-                </li>
-            </ul>
-            <div class="add-project">PROJECTS<button>+</button></div>
-            <ul class="projects">
-                <li>
-                    <div class="all">
-                        <img src="images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="all" width="32px">
-                        <a href="">ALL</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="school">
-                        <img src="images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="school" width="32px">
-                        <a href="">SCHOOL</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="work">
-                        <img src="images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="work" width="32px">
-                        <a href="">WORK</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="hobbies">
-                        <img src="images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="hobbies" width="32px">
-                        <a href="">HOBBIES</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="faith">
-                        <img src="images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="faith" width="32px">
-                        <a href="">FAITH</a>
-                    </div>
-                </li>
-            </ul>
-        </div>`;
-
-        // display content
-        let content = document.createElement('div');
-        content.classList.add('main');
-        content.innerHTML = `
-        <div class="main">
-            <div class="task-container">
-                <h2 class="tasks">TASKS</h2>
-                <div class="add-task">
-                    <button>+</button>
-                    <p>ADD TASK</p>
-                </div>
-                <div class="task">
-                    <div class="left">
-                        <div class="priority">G</div>
-                        <p class="title">PAY BILLS</p>
-                        <button class="dropdown"><img src="images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="drop-down"></button>
-                        <button class="delete"><img src="images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="delete"></button>
-                    </div>
-                    <div class="right">
-                        <p class="date">2/3/2025</p>
-                        <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
-                    </div>
-                </div>
-                <div class="task-expanded">
-                    <div class="left">
-                        <div class="priority">G</div>
-                        <p class="title">PAY BILLS</p>
-                        <button class="dropdown"><img src="images/arrow_drop_up_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="drop-down"></button>
-                        <button class="delete"><img src="images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="delete"></button>
-                    </div>
-                    <div class="right">
-                        <p class="date">2/3/2025</p>
-                        <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
-                    </div>
-                    <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.</p>
-                </div>
-            </div>
-            <div class="bible-verse">
-                <p class="verse">Come now, you who say, “Today or tomorrow we will go into such and such a town and spend a year there and trade and make a profit”— yet you do not know what tomorrow will bring. What is your life? For you are a mist that appears for a little time and then vanishes. Instead you ought to say, “If the Lord wills, we will live and do this or that.”</p>
-                <p class="location">James 4:13-15</p>
-            </div>
-        </div>`;
-
-        let contentContainer = document.createElement('div');
-        contentContainer.innerHTML = sidebar.innerHTML + '\n' + content.innerHTML;
-
-        */
-
-        /*
-        // append to body
-        let page = document.querySelector('.page');
-        page.append(header, contentContainer);
-        */
     }
 
     createHeader() {
@@ -338,69 +207,6 @@ export default class UI {
 
         addTask.append(addTaskButton, addTaskText);
 
-        // task (call function)
-        function createTask(setPriority, setTitle, setDate, setDescription) {
-            let task = document.createElement('div');
-            task.classList.add('task');
-
-            // left
-            let taskLeft = document.createElement('div');
-            taskLeft.classList.add('left');
-
-            let priority = document.createElement('div');
-            priority.classList.add('priority');
-            priority.textContent = setPriority;
-
-            let title = document.createElement('p');
-            title.classList.add('title');
-            title.textContent = setTitle;
-
-            let dropdownButton = document.createElement('button');
-            dropdownButton.classList.add('dropdown');
-            let dropdownIcon = document.createElement('img');
-            dropdownIcon.src = 'images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-            dropdownIcon.alt = 'drop-down'
-            dropdownButton.append(dropdownIcon);
-
-            let deleteButton = document.createElement('button');
-            deleteButton.classList.add('delete');
-            let deleteIcon = document.createElement('img');
-            deleteIcon.src = 'images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-            deleteIcon.alt = 'delete';
-            deleteButton.append(deleteIcon);
-
-            taskLeft.append(priority, title, dropdownButton, deleteButton);
-
-            // right
-            let taskRight = document.createElement('div');
-            taskRight.classList.add('right');
-
-            let date = document.createElement('p');
-            date.classList.add('date')
-            date.textContent = setDate;
-
-            let checkbox = document.createElement('div');
-            checkbox.classList.add('checkbox');
-
-            let checkboxIcon = document.createElement('img');
-            checkboxIcon.src = 'images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-            checkboxIcon.alt = 'checkbox';
-
-            taskRight.append(date, checkbox);
-
-            // description
-            let description = document.createElement('p');
-            description.classList.add('description');
-            description.textContent = setDescription;
-
-            task.append(taskLeft, taskRight);
-            if (setDescription) {
-                task.append(description);
-            }
-
-            return task;
-        }
-
         let task = createTask('G', 'PAY BILLS', '2/3/2025');
 
         // task expanded
@@ -430,19 +236,79 @@ export default class UI {
         return main;
     }
 
+    // task (call function)
+    createTask(setPriority, setTitle, setDate, setDescription) {
+        let task = document.createElement('div');
+        task.classList.add('task');
+
+        // left
+        let taskLeft = document.createElement('div');
+        taskLeft.classList.add('left');
+
+        let priority = document.createElement('div');
+        priority.classList.add('priority');
+        priority.textContent = setPriority;
+
+        let title = document.createElement('p');
+        title.classList.add('title');
+        title.textContent = setTitle;
+
+        let dropdownButton = document.createElement('button');
+        dropdownButton.classList.add('dropdown');
+        let dropdownIcon = document.createElement('img');
+        dropdownIcon.src = 'images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        dropdownIcon.alt = 'drop-down'
+        dropdownButton.append(dropdownIcon);
+
+        let deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete');
+        let deleteIcon = document.createElement('img');
+        deleteIcon.src = 'images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        deleteIcon.alt = 'delete';
+        deleteButton.append(deleteIcon);
+
+        taskLeft.append(priority, title, dropdownButton, deleteButton);
+
+        // right
+        let taskRight = document.createElement('div');
+        taskRight.classList.add('right');
+
+        let date = document.createElement('p');
+        date.classList.add('date')
+        date.textContent = setDate;
+
+        let checkbox = document.createElement('div');
+        checkbox.classList.add('checkbox');
+
+        let checkboxIcon = document.createElement('img');
+        checkboxIcon.src = 'images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        checkboxIcon.alt = 'checkbox';
+
+        taskRight.append(date, checkbox);
+
+        // description
+        let description = document.createElement('p');
+        description.classList.add('description');
+        description.textContent = setDescription;
+
+        task.append(taskLeft, taskRight);
+        if (setDescription) {
+            task.append(description);
+        }
+
+        return task;
+    }
 
     displayHeader() {
-        let body = document.querySelector('body');
-
-        body.append(createHeader());
+        this.body.append(createHeader());
     }
 
     displaySidebar() {
-
+        this.body.append(createSidebar());
     }
 
     displayContent() {
-
+        this.body.append(createContent());
     }
 
 
@@ -451,72 +317,6 @@ export default class UI {
     }
 
     showSidebar() {
-
-
-        /*
-        let sidebar = document.createElement(div);
-        sidebar.classList.add('sidebar');
-        sidebar.innerHTML = `
-        <ul class="current">
-                    <li>
-                        <div class="inbox">
-                            <img src="images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="inbox" width="32px">
-                            <a href="">INBOX</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="today">
-                            <img src="images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="today" width="32px">
-                            <a href="">TODAY</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="week">
-                            <img src="images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="week" width="32px">
-                            <a href="">WEEK</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="month">
-                            <img src="images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="month" width="32px">
-                            <a href="">MONTH</a>
-                        </div>
-                    </li>
-                </ul>
-                <div class="add-project">PROJECTS<button>+</button></div>
-                <ul class="projects">
-                    <li>
-                        <div class="all">
-                            <img src="images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="all" width="32px">
-                            <a href="">ALL</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="school">
-                            <img src="images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="school" width="32px">
-                            <a href="">SCHOOL</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="work">
-                            <img src="images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="work" width="32px">
-                            <a href="">WORK</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="hobbies">
-                            <img src="images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="hobbies" width="32px">
-                            <a href="">HOBBIES</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="faith">
-                            <img src="images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="faith" width="32px">
-                            <a href="">FAITH</a>
-                        </div>
-                    </li>
-                </ul>`;
-                */
     }
     hideSidebar() {
         let sidebar = document.querySelector('.sidebar');
@@ -633,3 +433,206 @@ export default class UI {
         // TODO
     }
 }
+
+
+
+// old methods
+// displayHome
+/*
+        // display header
+        let header = document.createElement('header');
+        header.innerHTML = `
+        <img class="banner" src="images/henrique-ferreira-QjOiTg459jI-unsplash.jpg" alt="banner">
+            <button class="menu">
+                <img src="images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="menu" width="32px">
+            </button>
+            <h1 class="title">LORD WILLING</h1>
+            <img class="account" src="images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="account" width="64px">
+            <!--Photo by <a href="https://unsplash.com/@rickpsd?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Henrique Ferreira</a> on <a href="https://unsplash.com/photos/layered-blue-mountains-fade-into-a-soft-pink-sky-QjOiTg459jI?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>-->`;
+
+        // display sidebar
+        let sidebar = document.createElement('div');
+        sidebar.classList.add('sidebar');
+        sidebar.innerHTML = `
+        <div class="sidebar">
+            <ul class="current">
+                <li>
+                    <div class="inbox">
+                        <img src="images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="inbox" width="32px">
+                        <a href="">INBOX</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="today">
+                        <img src="images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="today" width="32px">
+                        <a href="">TODAY</a>
+                       </div>
+                </li>
+                <li>
+                    <div class="week">
+                        <img src="images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="week" width="32px">
+                        <a href="">WEEK</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="month">
+                        <img src="images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="month" width="32px">
+                        <a href="">MONTH</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="add-project">PROJECTS<button>+</button></div>
+            <ul class="projects">
+                <li>
+                    <div class="all">
+                        <img src="images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="all" width="32px">
+                        <a href="">ALL</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="school">
+                        <img src="images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="school" width="32px">
+                        <a href="">SCHOOL</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="work">
+                        <img src="images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="work" width="32px">
+                        <a href="">WORK</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="hobbies">
+                        <img src="images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="hobbies" width="32px">
+                        <a href="">HOBBIES</a>
+                    </div>
+                </li>
+                <li>
+                    <div class="faith">
+                        <img src="images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="faith" width="32px">
+                        <a href="">FAITH</a>
+                    </div>
+                </li>
+            </ul>
+        </div>`;
+
+        // display content
+        let content = document.createElement('div');
+        content.classList.add('main');
+        content.innerHTML = `
+        <div class="main">
+            <div class="task-container">
+                <h2 class="tasks">TASKS</h2>
+                <div class="add-task">
+                    <button>+</button>
+                    <p>ADD TASK</p>
+                </div>
+                <div class="task">
+                    <div class="left">
+                        <div class="priority">G</div>
+                        <p class="title">PAY BILLS</p>
+                        <button class="dropdown"><img src="images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="drop-down"></button>
+                        <button class="delete"><img src="images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="delete"></button>
+                    </div>
+                    <div class="right">
+                        <p class="date">2/3/2025</p>
+                        <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
+                    </div>
+                </div>
+                <div class="task-expanded">
+                    <div class="left">
+                        <div class="priority">G</div>
+                        <p class="title">PAY BILLS</p>
+                        <button class="dropdown"><img src="images/arrow_drop_up_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="drop-down"></button>
+                        <button class="delete"><img src="images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="delete"></button>
+                    </div>
+                    <div class="right">
+                        <p class="date">2/3/2025</p>
+                        <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
+                    </div>
+                    <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.</p>
+                </div>
+            </div>
+            <div class="bible-verse">
+                <p class="verse">Come now, you who say, “Today or tomorrow we will go into such and such a town and spend a year there and trade and make a profit”— yet you do not know what tomorrow will bring. What is your life? For you are a mist that appears for a little time and then vanishes. Instead you ought to say, “If the Lord wills, we will live and do this or that.”</p>
+                <p class="location">James 4:13-15</p>
+            </div>
+        </div>`;
+
+        let contentContainer = document.createElement('div');
+        contentContainer.innerHTML = sidebar.innerHTML + '\n' + content.innerHTML;
+
+        */
+
+        /*
+        // append to body
+        let page = document.querySelector('.page');
+        page.append(header, contentContainer);
+        */
+
+
+// show sidebar
+/*
+        let sidebar = document.createElement(div);
+        sidebar.classList.add('sidebar');
+        sidebar.innerHTML = `
+        <ul class="current">
+                    <li>
+                        <div class="inbox">
+                            <img src="images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="inbox" width="32px">
+                            <a href="">INBOX</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="today">
+                            <img src="images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="today" width="32px">
+                            <a href="">TODAY</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="week">
+                            <img src="images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="week" width="32px">
+                            <a href="">WEEK</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="month">
+                            <img src="images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="month" width="32px">
+                            <a href="">MONTH</a>
+                        </div>
+                    </li>
+                </ul>
+                <div class="add-project">PROJECTS<button>+</button></div>
+                <ul class="projects">
+                    <li>
+                        <div class="all">
+                            <img src="images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="all" width="32px">
+                            <a href="">ALL</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="school">
+                            <img src="images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="school" width="32px">
+                            <a href="">SCHOOL</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="work">
+                            <img src="images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="work" width="32px">
+                            <a href="">WORK</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="hobbies">
+                            <img src="images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="hobbies" width="32px">
+                            <a href="">HOBBIES</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="faith">
+                            <img src="images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="faith" width="32px">
+                            <a href="">FAITH</a>
+                        </div>
+                    </li>
+                </ul>`;
+                */
