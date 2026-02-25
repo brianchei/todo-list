@@ -52,14 +52,35 @@ CLASS UI
     FUNCTION CHECK task
 */
 
+// import images
+import bannerPath from '../images/henrique-ferreira-QjOiTg459jI-unsplash.jpg'
+import menuIconPath from '../images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import accountIconPath from '../images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import inboxIconPath from '../images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import todayIconPath from '../images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import weekIconPath from '../images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import monthIconPath from '../images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import allIconPath from '../images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import schoolIconPath from '../images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import workIconPath from '../images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import hobbiesIconPath from '../images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import faithIconPath from '../images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import dropdownIconPath from '../images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import deleteIconPath from '../images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import checkIconPath from '../images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+
 export default class UI {
     constructor() {
         let page = document.createElement('div');
-        page.classList.add(page);
+        page.classList.add('page');
         document.body.append(page);
-        this.header = createHeader();
-        this.sidebar = createSidebar();
-        this.main = createMain();
+
+        let content = document.createElement('div');
+        content.classList.add('content');
+        
+        page.append(this.createHeader());
+        content.append(this.createSidebar(), this.createMain());
+        page.append(content);
     }
 
     // LOADING CONTENT
@@ -68,28 +89,21 @@ export default class UI {
 
     // EVENT LISTENERS
 
-    // maybe rename to displayDom ?? or loadHomepage
-    displayHome() {
-        this.displayHeader();
-        this.displaySidebar();
-        this.displayMain();
-    }
-
     createHeader() {
         let header = document.createElement('header');
 
         let banner = document.createElement('img');
         banner.classList.add('banner');
-        banner.src = 'images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        banner.src = bannerPath;
         banner.alt = banner;
 
         let menu = document.createElement('button');
         menu.classList.add('menu');
 
         let menuIcon = document.createElement('img');
-        menuIcon.src = 'images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        menuIcon.src = menuIconPath;
         menuIcon.alt = 'menu';
-        menuIcon.width = '32px';
+        menuIcon.width = '32';
 
         menu.appendChild(menuIcon);
 
@@ -101,9 +115,9 @@ export default class UI {
         account.classList.add('account');
 
         let accountIcon = document.createElement('img');
-        accountIcon.src = 'images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        accountIcon.src = accountIconPath;
         accountIcon.alt = 'account';
-        accountIcon.width = '64px';
+        accountIcon.width = '48';
 
         account.appendChild(accountIcon);
 
@@ -123,7 +137,7 @@ export default class UI {
         current.classList.add('current');
 
         let currentProjects = ['inbox', 'today', 'week', 'month'];
-        let currentImagePaths = ['images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24', 'images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg'];
+        let currentImagePaths = [inboxIconPath, todayIconPath, weekIconPath, monthIconPath];
 
         for (let projectName of currentProjects) {
             let li = document.createElement('li');
@@ -133,9 +147,9 @@ export default class UI {
 
             let img = document.createElement('img');
             img.src = currentImagePaths[currentProjects.indexOf(projectName)];
-            img.width = '32px';
+            img.width = '32';
 
-            let link = document.createElement('link');
+            let link = document.createElement('a');
             // link.href = TODO
             link.textContent = projectName.toUpperCase();
 
@@ -155,9 +169,10 @@ export default class UI {
 
         // default projects
         let defaults = document.createElement('ul');
+        defaults.classList.add('projects');
 
         let defaultProjects = ['all', 'school', 'work', 'hobbies', 'faith'];
-        let defaultImagePaths = ['images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg', 'images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg'];
+        let defaultImagePaths = [allIconPath, schoolIconPath, workIconPath, hobbiesIconPath, faithIconPath];
 
         for (let projectName of defaultProjects) {
             let li = document.createElement('li');
@@ -167,15 +182,15 @@ export default class UI {
 
             let img = document.createElement('img');
             img.src = defaultImagePaths[defaultProjects.indexOf(projectName)];
-            img.width = '32px';
+            img.width = '32';
 
             let link = document.createElement('a');
             // link.href = TODO
-            link.textContent = projectName;
+            link.textContent = projectName.toUpperCase();
 
             div.append(img, link);
             li.append(div);
-            defaults.append(li);
+            defaults.append(li);       
         }
 
         sidebar.append(current, addProject, defaults);
@@ -211,6 +226,9 @@ export default class UI {
 
         // task expanded
         let taskExpanded = this.createTask('G', 'PAY BILLS', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
+        taskExpanded.classList.remove('task');
+        taskExpanded.classList.add('task-expanded');
+
         
         // build container
         taskContainer.append(heading, addTask, task, taskExpanded);
@@ -256,14 +274,14 @@ export default class UI {
         let dropdownButton = document.createElement('button');
         dropdownButton.classList.add('dropdown');
         let dropdownIcon = document.createElement('img');
-        dropdownIcon.src = 'images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        dropdownIcon.src = dropdownIconPath;
         dropdownIcon.alt = 'drop-down'
         dropdownButton.append(dropdownIcon);
 
         let deleteButton = document.createElement('button');
         deleteButton.classList.add('delete');
         let deleteIcon = document.createElement('img');
-        deleteIcon.src = 'images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        deleteIcon.src = deleteIconPath;
         deleteIcon.alt = 'delete';
         deleteButton.append(deleteIcon);
 
@@ -281,8 +299,11 @@ export default class UI {
         checkbox.classList.add('checkbox');
 
         let checkboxIcon = document.createElement('img');
-        checkboxIcon.src = 'images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+        checkboxIcon.src = checkIconPath;
         checkboxIcon.alt = 'checkbox';
+        checkboxIcon.width = 32;
+
+        checkbox.append(checkboxIcon);
 
         taskRight.append(date, checkbox);
 
@@ -298,31 +319,6 @@ export default class UI {
 
         return task;
     }
-
-    displayHeader() {
-        page.append(this.createHeader()); // or this.header
-    }
-
-    displaySidebar() {
-        if (document.querySelector(content)) { 
-            let content = document.createElement('div');
-            content.classList.add('content');
-        }
-        content = document.querySelector('.content');
-        content.append(this.createSidebar()); // or this.sidebar
-        page.append(content);
-    }
-
-    displayMain() {
-        if (document.querySelector(content)) { 
-            let content = document.createElement('div');
-            content.classList.add('content');
-        }
-        content = document.querySelector('.content');
-        content.append(this.createMain()); // or this.main
-        page.append(content);
-    }
-
 
     addPageEventListeners() {
 

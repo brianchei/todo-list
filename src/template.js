@@ -6,7 +6,5 @@ module.exports = () => `<!DOCTYPE html>
     <title>Todo List</title>
 </head>
 <body>
-    <div class="page">
-    </div>
 </body>
 </html>`;
