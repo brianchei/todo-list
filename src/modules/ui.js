@@ -69,8 +69,14 @@ import dropdownIconPath from '../images/arrow_drop_down_24dp_000000_FILL0_wght40
 import deleteIconPath from '../images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 import checkIconPath from '../images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 
+// import classes
+import Todo from './todo';
+import Project from './project';
+import List from './list';
+
 export default class UI {
     constructor() {
+        // build homepage
         let page = document.createElement('div');
         page.classList.add('page');
         document.body.append(page);
@@ -81,6 +87,9 @@ export default class UI {
         page.append(this.createHeader());
         content.append(this.createSidebar(), this.createMain());
         page.append(content);
+
+        // initialize todo list
+        this.list = new List();
     }
 
     // LOADING CONTENT
@@ -321,10 +330,14 @@ export default class UI {
     }
 
     addPageEventListeners() {
-
+        // TODO
+        // Sidebar/menu
+        // Account
     }
 
     showSidebar() {
+        let content = document.querySelector('.content');
+        content.prepend(this.createSidebar());
     }
     hideSidebar() {
         let sidebar = document.querySelector('.sidebar');
@@ -332,38 +345,82 @@ export default class UI {
     }
 
     displayAccount() {
+        // construct modal
         let modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
-        modalOverlay.innerHTML = `
-        <dialog class="modal">
-            <form action="" method="dialog">
-                <div class="form-container">
-                    <div class="form-top">
-                        <h1>Login</h1>
-                        <button class="close-form">x</button>
-                    </div>
-                    <div class="form-bottom">
-                        <div class="form-control">
-                            <label for="username"></label>
-                            <input type="text" name="username" id="username">
-                            <span>Username</span>
-                        </div>
-                        <div class="form-control">
-                            <label for="password"></label>
-                            <input type="text" name="password" id="password">
-                            <span>Password</span>
-                        </div>
-                        <button class="submit" type="submit">Submit</button>
-                    </div>
-                </div>
-            </form>
-        </dialog>`;
-        let modal = modalOverlay.querySelector('dialog');
+        let modal = document.createElement('dialog');
+        modal.classList.add('modal');
+        let form = document.createElement('form');
+        form.method = 'dialog';
+        let formContainer = document.createElement('div');
+        formContainer.classList.add('form-container');
+
+        form.append(formContainer);
+        modal.append(form);
+        modalOverlay.append(modal);
+        
+        // form top
+        let formTop = document.createElement('div');
+        formTop.classList.add('form-top');
+        let heading = document.createElement('h1');
+        heading.textContent = 'Login';
+        let closeForm = document.createElement('button');
+        closeForm.classList.add('close-form');
+        closeForm.textContent = 'x';
+
+        formTop.append(heading, closeForm);
+
+        // form bottom
+        let formBottom = document.createElement('div');
+        formBottom.classList.add('form-bottom');
+
+        // username
+        let usernameFormControl = document.createElement('div');
+        usernameFormControl.classList.add('form-control');
+        let username = document.createElement('label');
+        username.htmlFor = 'username';
+        let usernameInput = document.createElement('input');
+        usernameInput.type = 'text';
+        usernameInput.name = 'username';
+        usernameInput.id = 'username';
+        let usernameText = document.createElement('span');
+        usernameText.textContent = 'Username';
+
+        usernameFormControl.append(username, usernameInput, usernameText);
+
+        // password
+        let passwordFormControl = document.createElement('div');
+        passwordFormControl.classList.add('form-control');
+        let password = document.createElement('label');
+        password.htmlFor = 'password';
+        let passwordInput = document.createElement('input');
+        passwordInput.type = 'text';
+        passwordInput.name = 'password';
+        passwordInput.id = 'password';
+        let passwordText = document.createElement('span');
+        passwordText.textContent = 'Password';
+
+        passwordFormControl.append(password, passwordInput, passwordText);
+
+        // submit
+        let submit = document.createElement('button');
+        submit.classList.add('submit');
+        submit.type = 'submit';
+        submit.textContent = 'Submit';
+
+        formBottom.append(usernameFormControl, passwordFormControl, submit);
+
+
+        formContainer.append(formTop, formBottom);
+
+        document.body.append(modalOverlay);
         modal.showModal();
     }
     hideAccount() {
         let modal = document.querySelector('dialog');
+        let modalOverlay = document.querySelector('.modal-overlay');
         modal.close();
+        modalOverlay.remove();
     }
 
     displayPage(page) {
@@ -372,36 +429,77 @@ export default class UI {
 
 
     addProjectEventListeners() {
+        // TODO
+        // Inbox
+        // Today
+        // Week
+        // Month
 
+        // Add project
+        // All
+        // Named project (School, Work, Hobbies, Faith)
     }
 
-    addProject(title) {
+    addProject(title, image) {
+        this.list.addProject(title);
+
         let projects = document.querySelector('.projects');
-        let projectTitle = project.getTitle;
-        projects.innerHTML += `
-        <li>
-            <div class="` + projectTitle + `">
-                <img src="" alt="` + projectTitle + `" width="32px">
-                <a href="">` + projectTitle + `</a>
-            </div>
-        </li>`
+        let li = document.createElement('li');
+        let projectContainer = document.createElement('div');
+        projectContainer.classList.add(title);
+        let img = document.createElement('img');
+        img.src = image;
+        img.alt = title;
+        img.width = '32';
+        let link = document.createElement('a');
+        link.href = ''; // TODO
+        link.textContent = title.toUpperCase();
+
+        projectContainer.append(image, link);
+        li.append(projectContainer);
+        projects.append('li');
     }
     deleteProject(title) {
+        this.list.deleteProject(title);
+
         let toDelete = document.querySelector('.' + title);
         let listItem = toDelete.parentElement;
         listItem.remove();
     }
 
-    editProject(title, newTitle) {
-        // TODO
+    editProject(title, newTitle, image) {
+        this.list.getProject(title).setTitle(newTitle);
+        
+        let project = document.querySelector('.' + title);
+        project.classList.remove(title);
+        project.classList.add(newTitle);
+
+        let img = project.querySelector('img');
+        if (image) img.src = image;
+        img.alt = newTitle;
+        let link = project.querySelector('a');
+        link.textContent = newTitle.toUpperCase();
     }
 
 
     addTaskEventListeners() {
-
+        // TODO
+        // Add task
+        // Change priority
+        // Change title
+        // Dropdown/description
+        // Delete
+        // Change Date
+        // Check
     }
-
+    
+    // TODO
     addTask(task) {
+        // get current project
+
+        // add task to project
+
+        // add task DOM
         let tasks = document.querySelector('.main');
         let title = task.getTitle();
         let priority = task.getPriority();
@@ -425,22 +523,54 @@ export default class UI {
         tasks.appendChild(toAdd);
     }
     deleteTask(title) {
+        // get current project
+        
+        // delete task from project
+
+        // delete from DOM
         let toDelete = document.querySelector('.' + title);
         let task = toDelete.parentElement;
         task.parentElement.remove();
     }
 
     showDescription(task) {
-        // TODO
+        task.classList.remove(task);
+        task.classList.add(task-expanded);
+
+        let description = task.querySelector('.description');
+        description.classList.remove('.hidden');
     }
     hideDescription(task) {
-        // TODO
+        task.classList.remove(task-expanded);
+        task.classList.add(task);
+
+        let description = task.querySelector('.description');
+        description.classList.account('.hidden');
     }
 
-    checkTask(task) {
-        // TODO
+    checkTask(checkbox, title) {
+        // get current project
+
+        // get current task
+
+        // task set checked
+
+        // set checked DOM
+        let check = document.createElement('img');
+        check.src = checkIconPath;
+        check.alt = 'check';
+        
+        // target checkbox TODO
+        checkbox.append(check);
     }
 }
+
+
+
+
+
+
+
 
 
 

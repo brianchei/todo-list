@@ -74,8 +74,8 @@ export default class Todo {
         return this.notes;
     }
 
-    setChecked(checked) {
-        this.checked = checked;
+    setChecked() {
+        this.checked = true;
     }
     getChecked() {
         return this.checked;
