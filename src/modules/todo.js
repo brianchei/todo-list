@@ -30,12 +30,11 @@ CLASS Task
 */
 
 export default class Todo {
-    constructor() {
-        this.title = '';
-        this.description = '';
-        this.dueDate = 0;
-        this.priority = 0;
-        this.notes = '';
+    constructor(title, description, dueDate, priority, checked) {
+        this.priority = priority;
+        this.title = title;
+        this.dueDate = dueDate;
+        this.description = description;
         this.checked = false;
     }
 
@@ -67,12 +66,14 @@ export default class Todo {
         return this.priority;
     }
 
+    /*
     setNotes(notes) {
         this.notes = notes;
     }
     getNotes() {
         return this.notes;
-    }
+    }    
+        */
 
     setChecked() {
         this.checked = true;

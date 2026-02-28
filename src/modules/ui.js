@@ -88,6 +88,8 @@ export default class UI {
         content.append(this.createSidebar(), this.createMain());
         page.append(content);
 
+        // this.displayAccount();
+
         // initialize todo list
         this.list = new List();
     }
@@ -492,37 +494,165 @@ export default class UI {
         // Change Date
         // Check
     }
+
+    // task data
+    getTaskData() {
+        // create task modal
+        // construct modal
+        let modalOverlay = document.createElement('div');
+        modalOverlay.classList.add('modal-overlay');
+        let modal = document.createElement('dialog');
+        modal.classList.add('modal');
+        let form = document.createElement('form');
+        form.method = 'dialog';
+        form.classList.add('task-form');
+        let formContainer = document.createElement('div');
+        formContainer.classList.add('form-container');
+
+        form.append(formContainer);
+        modal.append(form);
+        modalOverlay.append(modal);
+        
+        // form top
+        let formTop = document.createElement('div');
+        formTop.classList.add('form-top');
+        let heading = document.createElement('h1');
+        heading.textContent = 'Create Todo';
+        let closeForm = document.createElement('button');
+        closeForm.classList.add('close-form');
+        closeForm.textContent = 'x';
+
+        formTop.append(heading, closeForm);
+
+        // form bottom
+        let formBottom = document.createElement('div');
+        formBottom.classList.add('form-bottom');
+
+        // priority
+        let priorityFormControl = document.createElement('div');
+        priorityFormControl.classList.add('form-control');
+        // green
+        let priorityGreen = document.createElement('label');
+        priorityGreen.htmlFor = 'priorityGreen';
+        let priorityInputGreen = document.createElement('input');
+        priorityInputGreen.type = 'radio';
+        priorityInputGreen.name = 'priority';
+        priorityInputGreen.id = 'green';
+        let priorityTextGreen = document.createElement('span');
+        priorityTextGreen.textContent = 'Green';
+
+        priorityFormControl.append(priorityGreen, priorityInputGreen, priorityTextGreen);
+
+        // yellow
+        let priorityYellow = document.createElement('label');
+        priorityYellow.htmlFor = 'priorityYellow';
+        let priorityInputYellow = document.createElement('input');
+        priorityInputYellow.type = 'radio';
+        priorityInputYellow.name = 'priority';
+        priorityInputYellow.id = 'yellow';
+        let priorityTextYellow = document.createElement('span');
+        priorityTextYellow.textContent = 'Yellow';
+
+        priorityFormControl.append(priorityYellow, priorityInputYellow, priorityTextYellow);
+
+        // red
+        let priorityRed = document.createElement('label');
+        priorityRed.htmlFor = 'priorityRed';
+        let priorityInputRed = document.createElement('input');
+        priorityInputRed.type = 'radio';
+        priorityInputRed.name = 'priority';
+        priorityInputRed.id = 'red';
+        let priorityTextRed = document.createElement('span');
+        priorityTextRed.textContent = 'Red';
+
+        priorityFormControl.append(priorityRed, priorityInputRed, priorityTextRed);
+
+
+        // title
+        let titleFormControl = document.createElement('div');
+        titleFormControl.classList.add('form-control');
+        let title = document.createElement('label');
+        title.htmlFor = 'title';
+        let titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.name = 'title';
+        titleInput.id = 'title';
+        let titleText = document.createElement('span');
+        titleText.textContent = 'Title';
+
+        titleFormControl.append(title, titleInput, titleText);
+
+
+        // date
+        let dateFormControl = document.createElement('div');
+        dateFormControl.classList.add('form-control');
+        let date = document.createElement('label');
+        date.htmlFor = 'date';
+        let dateInput = document.createElement('input');
+        dateInput.type = 'date';
+        dateInput.name = 'date';
+        dateInput.id = 'date';
+        let dateText = document.createElement('span');
+        dateText.textContent = 'Date';
+
+        dateFormControl.append(date, dateInput, dateText);
+
+        
+        // description
+        let descriptionFormControl = document.createElement('div');
+        descriptionFormControl.classList.add('form-control');
+        let description = document.createElement('label');
+        description.htmlFor = 'description';
+        let descriptionInput = document.createElement('input');
+        descriptionInput.type = 'text';
+        descriptionInput.name = 'description';
+        descriptionInput.id = 'description';
+        let descriptionText = document.createElement('span');
+        descriptionText.textContent = 'Description';
+
+        descriptionFormControl.append(description, descriptionInput, descriptionText);
+
+        // submit
+        let submit = document.createElement('button');
+        submit.classList.add('submit');
+        submit.type = 'submit';
+        submit.textContent = 'Submit';
+
+        formBottom.append(usernameFormControl, passwordFormControl, submit);
+
+
+        formContainer.append(formTop, formBottom);
+
+        document.body.append(modalOverlay);
+        modal.showModal();
+    }
     
     // TODO
-    addTask(task) {
-        // get current project
+    addTask(event) {
+        // get data
+        let form = document.querySelector('.task-form');
+        const formData = new FormData(form);
+        let priority = formData.get('priority');
+        let title = formData.get('title');
+        let date = formData.get('date');
+        let description = formData.get('description');
 
+        // create task instance
+        let task = new Todo(priority, title, date, description);
+        // get current project
+        let currentProject = document.querySelector('.bolded'); // or .active or .current ...
+        let project = this.list.getProject(currentProject.id); // TODO
         // add task to project
+        project.addTodo(task);
 
         // add task DOM
-        let tasks = document.querySelector('.main');
-        let title = task.getTitle();
-        let priority = task.getPriority();
-        let dueDate = task.getDueDate();
+        let taskContainer = document.querySelector('task-container');
+        
+        let toAdd = this.createTask(priority, title, date, description);
 
-        let toAdd = document.createElement('.div');
-        toAdd.classList.add('task');
-
-        toAdd.innerHTML = `
-        <div class="left">
-            <div class="priority">` + priority + `</div>
-                <p class="title">` + title + `</p>
-                <button class="dropdown"><img src="images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="drop-down"></button>
-                <button class="delete"><img src="images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="delete"></button>
-            </div>
-            <div class="right">
-                <p class="date">` + dueDate + `</p>
-            <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
-        </div>`
-
-        tasks.appendChild(toAdd);
+        taskContainer.appendChild(toAdd);
     }
-    deleteTask(title) {
+    deleteTask(event) {
         // get current project
         
         // delete task from project
