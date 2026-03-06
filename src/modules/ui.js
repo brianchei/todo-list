@@ -346,46 +346,48 @@ export default class UI {
     }
 
     addPageEventListeners() {
-        // TODO
         // Sidebar/menu
+        let sidebar = document.querySelector('.sidebar');
         let menu = document.querySelector('.menu');
         menu.addEventListener('click', () => {
-            if (document.querySelector('.sidebar')) {
-                // this.hideSidebar();
+            if (sidebar.classList.contains('hidden')) {
+                this.showSidebar();
             } else {
-                // this.showSidebar();
+                this.hideSidebar();
             }
         });
 
         // Account
         let account = document.querySelector('.account');
         account.addEventListener('click', () => {
-            this.displayAccount;
+            this.displayAccount();
         });
-/*
-        // Close account
-        let closeForm = document.querySelector('.account-form .close-form');
-        let submitForm = document.querySelector('.account-form .submit');
-
-        closeForm.addEventListener('click', () => {
-            this.hideAccount();
-        });
-        submitForm.addEventListener('click', () => {
-            this.hideAccount();
-        });
-*/
     }
 
     showSidebar() {
         let content = document.querySelector('.content');
-        content.prepend(this.createSidebar());
+        content.style.gridTemplateColumns = '2fr 8fr';
+        let sidebar = document.querySelector('.sidebar');
+        sidebar.classList.remove('hidden');
     }
     hideSidebar() {
+        let content = document.querySelector('.content');
+        content.style.gridTemplateColumns = '1fr';
         let sidebar = document.querySelector('.sidebar');
-        sidebar.remove();
+        sidebar.classList.add('hidden');
     }
 
     displayAccount() {
+        // TODO: if account modal already exists unhide
+        let accountForm = document.querySelector('.account-form');
+        if (accountForm) {
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modalOverlay.classList.remove('hidden');
+            let modal = accountForm.parentElement;
+            modal.showModal();
+            return;
+        }
+
         // construct modal
         let modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
@@ -409,6 +411,13 @@ export default class UI {
         let closeForm = document.createElement('button');
         closeForm.classList.add('close-form');
         closeForm.textContent = 'x';
+
+        closeForm.addEventListener('click', () => {
+            let modal = document.querySelector('dialog');
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modal.close();
+            modalOverlay.classList.add('hidden');
+        });
 
         formTop.append(heading, closeForm);
 
@@ -449,6 +458,22 @@ export default class UI {
         submit.classList.add('submit');
         submit.type = 'submit';
         submit.textContent = 'Submit';
+
+        submit.addEventListener('click', (e) => {
+            // TODO: maybe close form before getting data
+            let modal = document.querySelector('dialog');
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modal.close();
+            modalOverlay.classList.add('hidden');
+
+            // get data
+            let form = document.querySelector('.account-form');
+            const formData = new FormData(form);
+            let username = formData.get('username');
+            let password = formData.get('password');
+
+            // TODO: load data
+        });
 
         formBottom.append(usernameFormControl, passwordFormControl, submit);
 
@@ -1024,6 +1049,8 @@ export default class UI {
 }
 
 /* TODO: 
+- reset form/modal/popup information after submit/close
+- fix task form priority
 - activate all event listeners
 - create modal function
 - refactor add project/event listener
