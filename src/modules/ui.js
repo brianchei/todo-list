@@ -91,7 +91,12 @@ export default class UI {
         // this.displayAccount();
 
         // initialize todo list
-        this.list = new List();
+        this.list = new List('current', []);
+
+        // attach event listeners
+        this.addPageEventListeners();
+        this.addProjectEventListeners();
+        this.addTaskEventListeners();
     }
 
     // LOADING CONTENT
@@ -154,7 +159,7 @@ export default class UI {
             let li = document.createElement('li');
 
             let div = document.createElement('div');
-            div.classList.add(projectName);
+            div.id = projectName;
 
             let img = document.createElement('img');
             img.src = currentImagePaths[currentProjects.indexOf(projectName)];
@@ -189,7 +194,7 @@ export default class UI {
             let li = document.createElement('li');
 
             let div = document.createElement('div');
-            div.classList.add(projectName);
+            div.id = projectName;
 
             let img = document.createElement('img');
             img.src = defaultImagePaths[defaultProjects.indexOf(projectName)];
@@ -277,6 +282,7 @@ export default class UI {
         let priority = document.createElement('div');
         priority.classList.add('priority');
         priority.textContent = setPriority;
+        priority.classList.add(setPriority);
 
         let title = document.createElement('p');
         title.classList.add('title');
@@ -309,24 +315,32 @@ export default class UI {
         let checkbox = document.createElement('div');
         checkbox.classList.add('checkbox');
 
+        // TODO: delete automatic check
+        /*
         let checkboxIcon = document.createElement('img');
         checkboxIcon.src = checkIconPath;
         checkboxIcon.alt = 'checkbox';
         checkboxIcon.width = 32;
 
         checkbox.append(checkboxIcon);
+        */
 
         taskRight.append(date, checkbox);
 
-        // description
-        let description = document.createElement('p');
-        description.classList.add('description');
-        description.textContent = setDescription;
+        if (setDescription) {
+            // description
+            let description = document.createElement('p');
+            description.classList.add('description');
+            description.textContent = setDescription;
+
+            if (setDescription) {
+                task.append(description);
+            }
+
+            description.classList.add('hidden');
+        }
 
         task.append(taskLeft, taskRight);
-        if (setDescription) {
-            task.append(description);
-        }
 
         return task;
     }
@@ -334,7 +348,32 @@ export default class UI {
     addPageEventListeners() {
         // TODO
         // Sidebar/menu
+        let menu = document.querySelector('.menu');
+        menu.addEventListener('click', () => {
+            if (document.querySelector('.sidebar')) {
+                // this.hideSidebar();
+            } else {
+                // this.showSidebar();
+            }
+        });
+
         // Account
+        let account = document.querySelector('.account');
+        account.addEventListener('click', () => {
+            this.displayAccount;
+        });
+/*
+        // Close account
+        let closeForm = document.querySelector('.account-form .close-form');
+        let submitForm = document.querySelector('.account-form .submit');
+
+        closeForm.addEventListener('click', () => {
+            this.hideAccount();
+        });
+        submitForm.addEventListener('click', () => {
+            this.hideAccount();
+        });
+*/
     }
 
     showSidebar() {
@@ -354,6 +393,7 @@ export default class UI {
         modal.classList.add('modal');
         let form = document.createElement('form');
         form.method = 'dialog';
+        form.classList.add('account-form');
         let formContainer = document.createElement('div');
         formContainer.classList.add('form-container');
 
@@ -422,7 +462,7 @@ export default class UI {
         let modal = document.querySelector('dialog');
         let modalOverlay = document.querySelector('.modal-overlay');
         modal.close();
-        modalOverlay.remove();
+        modalOverlay.classList.add('hidden');
     }
 
     displayPage(page) {
@@ -431,24 +471,143 @@ export default class UI {
 
 
     addProjectEventListeners() {
-        // TODO
-        // Inbox
-        // Today
-        // Week
-        // Month
+        // TODO: add functionality to fetch current project (date = today, week, month)
+
+        // Switch project
+        let projects = document.querySelectorAll('li');
+        projects.forEach((project) => {
+            project.querySelector('a').addEventListener('click', (e) => {
+                let clickTarget = e.target;
+                let currentProject = clickTarget.parentElement.id;
+                this.displayPage(currentProject);
+                // TODO: set current .bolded class
+            });
+        })
+        /*
+        for (project of projects) {
+            project.querySelector('a').addEventListener('click', (e) => {
+                let clickTarget = e.target;
+                let currentProject = clickTarget.parentElement.id;
+                this.displayPage(currentProject);
+                // TODO: set current .bolded class
+            });
+        }
+        */
 
         // Add project
+        let addProject = document.querySelector('.add-project > button');
+        addProject.addEventListener('click', () => {
+            this.getProjectData();
+
+            let submitProject = document.querySelector('.project-form submit');
+            submitProject.addEventListener('click', (e) => {
+                // TODO: maybe close form before getting data
+
+                // get data
+                let form = document.querySelector('.project-form');
+                const formData = new FormData(form);
+                let title = formData.get('title');
+                let icon = formData.get('icon');
+
+                // add project to list
+                let toAdd = new Project(title, icon, []);
+                this.list.addProject(toAdd);
+
+                // add project to DOM
+                addProject(title, icon);
+            });
+        });
+
+        // TODO: Delete project
+
         // All
+
         // Named project (School, Work, Hobbies, Faith)
     }
 
-    addProject(title, image) {
-        this.list.addProject(title);
+    // project data
+    getProjectData() {
+        // construct modal
+        let modalOverlay = document.createElement('div');
+        modalOverlay.classList.add('modal-overlay');
+        let modal = document.createElement('dialog');
+        modal.classList.add('modal');
+        let form = document.createElement('form');
+        form.method = 'dialog';
+        form.classList.add('project-form');
+        let formContainer = document.createElement('div');
+        formContainer.classList.add('form-container');
 
+        form.append(formContainer);
+        modal.append(form);
+        modalOverlay.append(modal);
+        
+        // form top
+        let formTop = document.createElement('div');
+        formTop.classList.add('form-top');
+        let heading = document.createElement('h1');
+        heading.textContent = 'Add Project';
+        let closeForm = document.createElement('button');
+        closeForm.classList.add('close-form');
+        closeForm.textContent = 'x';
+
+        formTop.append(heading, closeForm);
+
+        // form bottom
+        let formBottom = document.createElement('div');
+        formBottom.classList.add('form-bottom');
+
+        // title
+        let titleFormControl = document.createElement('div');
+        titleFormControl.classList.add('form-control');
+        let title = document.createElement('label');
+        title.htmlFor = 'title';
+        let titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.name = 'title';
+        titleInput.id = 'title';
+        let titleText = document.createElement('span');
+        titleText.textContent = 'Title';
+
+        titleFormControl.append(title, titleInput, titleText);
+
+        // icon
+        let iconFormControl = document.createElement('div');
+        iconFormControl.classList.add('form-control');
+        let icon = document.createElement('label');
+        icon.htmlFor = 'icon';
+        let iconInput = document.createElement('input');
+        iconInput.type = 'text';
+        iconInput.name = 'icon';
+        iconInput.id = 'icon';
+        let iconText = document.createElement('span');
+        iconText.textContent = 'Icon';
+
+        iconFormControl.append(icon, iconInput, iconText);
+
+        // submit
+        let submit = document.createElement('button');
+        submit.classList.add('submit');
+        submit.type = 'submit';
+        submit.textContent = 'Submit';
+
+        formBottom.append(titleFormControl, iconFormControl, submit);
+
+
+        formContainer.append(formTop, formBottom);
+
+        document.body.append(modalOverlay);
+        modal.showModal();
+    }
+
+    addProject(title, image) {
+        // TODO: add project to list
+
+        // add project to DOM
         let projects = document.querySelector('.projects');
         let li = document.createElement('li');
         let projectContainer = document.createElement('div');
-        projectContainer.classList.add(title);
+        projectContainer.id = title;
         let img = document.createElement('img');
         img.src = image;
         img.alt = title;
@@ -485,18 +644,148 @@ export default class UI {
 
 
     addTaskEventListeners() {
-        // TODO
+        // add placeholder project/task
+        // TODO: set inbox bolded (for now)
+        let inbox = document.querySelector('#inbox');
+        inbox.classList.add('bolded');
+
+        let projectToAdd = new Project('inbox', 'img', []);
+
+        this.list.addProject(projectToAdd);
+
+        // get current project
+        let currentProject = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProject.id);
+
+        // TODO: add dummy tasks to inbox
+        // create task instance
+        let dummyTask = new Todo('G', 'G', 'G', 'G');
+
+        // add task to project
+        projectToAdd.addTodo(dummyTask);
+
+        // add task DOM
+        let taskContainer = document.querySelector('.task-container');
+        
+        let toAdd = this.createTask(dummyTask.getPriority(), dummyTask.getTitle(), dummyTask.getDueDate(), dummyTask.getDescription());
+
+        taskContainer.appendChild(toAdd);
+
         // Add task
+        let addTask = document.querySelector('.add-task > button');
+        addTask.addEventListener('click', () => {
+            this.getTaskData();
+        });
+
+        taskContainer.addEventListener('click', (e) => {
+            let clickTarget = e.target;
+
+            // exit if not task related click
+            if (!clickTarget.closest('.task') && !clickTarget.closest('.task-expanded')) {
+                return;
+            }
+
+            // get current task
+            let currentTaskElement = clickTarget.closest('.task') ? clickTarget.closest('.task') : clickTarget.closest('.task-expanded');
+            let currentTaskTitle = currentTaskElement.querySelector('.title').textContent;
+            let currentTask = projectToAdd.getTodo(currentTaskTitle);
+
+            // priority
+            if (clickTarget.matches('.priority')) {
+                // change task priority
+                let priority = currentTask.getPriority();
+                if (priority === 'G') {
+                    currentTask.setPriority('Y');
+                } else if (priority === 'Y') {
+                    currentTask.setPriority('R');
+                } else {
+                    currentTask.setPriority('G');
+                }
+                // update element display
+                clickTarget.classList.remove('G', 'Y', 'R');
+                clickTarget.classList.add(currentTask.getPriority());
+                clickTarget.textContent = currentTask.getPriority();
+            }
+
+            // title
+            if (clickTarget.matches('.title') && clickTarget.matches('p')) {
+                // change task title
+                let newTitle = prompt('New title?', currentTaskTitle);
+                // keep same if empty input or cancel
+                if (newTitle !== null && newTitle.length) {
+                    currentTask.setTitle(newTitle);
+
+                    // update element display
+                    clickTarget.textContent = newTitle;
+                }
+            }
+            
+            // dropdown
+            if (clickTarget.matches('.dropdown') || clickTarget.matches('.dropdown img')) {
+                if (currentTaskElement.classList.contains('task')) {
+                    this.showDescription(currentTaskElement);
+                } else if (currentTaskElement.classList.contains('task-expanded')) {
+                    this.hideDescription(currentTaskElement);
+                }
+            }
+
+            // delete
+            if (clickTarget.matches('.delete') || clickTarget.matches('.delete img')) {
+                // remove from project
+                project.deleteTodo(currentTaskTitle);
+
+                // remove from DOM
+                currentTaskElement.remove();
+            }
+
+            // date
+            if (clickTarget.matches('.date')) {
+                // change task date
+                let currentDate = clickTarget.textContent;
+                let newDate = prompt('New date?', currentDate);
+
+                // keep same if empty input
+                if (newDate !== null && newDate.length) {
+                    currentTask.setDueDate(newDate);
+
+                    // update element display
+                    clickTarget.textContent = newDate;
+                }
+            }
+
+            // TODO: set to toggle
+            // check
+            if ((clickTarget.matches('.checkbox') || clickTarget.matches('.checkbox img'))) {
+                this.checkTask(e);
+            }
+        });
+
         // Change priority
+
         // Change title
+
         // Dropdown/description
+
         // Delete
+
         // Change Date
+
         // Check
+
     }
 
     // task data
     getTaskData() {
+        // TODO: if task modal already exists unhide
+        let taskForm = document.querySelector('.task-form');
+        if (taskForm) {
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modalOverlay.classList.remove('hidden');
+            let modal = taskForm.parentElement;
+            modal.showModal();
+            return;
+        }
+
         // create task modal
         // construct modal
         let modalOverlay = document.createElement('div');
@@ -533,10 +822,11 @@ export default class UI {
         priorityFormControl.classList.add('form-control');
         // green
         let priorityGreen = document.createElement('label');
-        priorityGreen.htmlFor = 'priorityGreen';
+        priorityGreen.htmlFor = 'green';
         let priorityInputGreen = document.createElement('input');
         priorityInputGreen.type = 'radio';
         priorityInputGreen.name = 'priority';
+        priorityInputGreen.value = 'G';
         priorityInputGreen.id = 'green';
         let priorityTextGreen = document.createElement('span');
         priorityTextGreen.textContent = 'Green';
@@ -545,10 +835,11 @@ export default class UI {
 
         // yellow
         let priorityYellow = document.createElement('label');
-        priorityYellow.htmlFor = 'priorityYellow';
+        priorityYellow.htmlFor = 'yellow';
         let priorityInputYellow = document.createElement('input');
         priorityInputYellow.type = 'radio';
         priorityInputYellow.name = 'priority';
+        priorityInputYellow.value = 'Y';
         priorityInputYellow.id = 'yellow';
         let priorityTextYellow = document.createElement('span');
         priorityTextYellow.textContent = 'Yellow';
@@ -557,10 +848,11 @@ export default class UI {
 
         // red
         let priorityRed = document.createElement('label');
-        priorityRed.htmlFor = 'priorityRed';
+        priorityRed.htmlFor = 'red';
         let priorityInputRed = document.createElement('input');
         priorityInputRed.type = 'radio';
         priorityInputRed.name = 'priority';
+        priorityInputRed.value = 'R';
         priorityInputRed.id = 'red';
         let priorityTextRed = document.createElement('span');
         priorityTextRed.textContent = 'Red';
@@ -618,7 +910,34 @@ export default class UI {
         submit.type = 'submit';
         submit.textContent = 'Submit';
 
-        formBottom.append(usernameFormControl, passwordFormControl, submit);
+        submit.addEventListener('click', (e) => {
+            // TODO: maybe close form before getting data
+            let modal = document.querySelector('dialog');
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modal.close();
+            modalOverlay.classList.add('hidden');
+
+            // get data
+            let form = document.querySelector('.task-form');
+            const formData = new FormData(form);
+            let priority = formData.get('priority');
+            let title = formData.get('title');
+            let date = formData.get('date');
+            let description = formData.get('description');
+
+            /*
+            // add task to current project
+            let toAdd = new Todo(title, description, date, priority);
+            let currentProject = document.querySelector('.bolded'); // or .active or .current ...
+            let project = this.list.getProject(currentProject.id);
+            project.addTodo(toAdd);
+            */
+
+            // add project to DOM
+            this.addTask(e);
+        });
+
+        formBottom.append(priorityFormControl, titleFormControl, dateFormControl, descriptionFormControl, submit);
 
 
         formContainer.append(formTop, formBottom);
@@ -627,8 +946,7 @@ export default class UI {
         modal.showModal();
     }
     
-    // TODO
-    addTask(event) {
+    addTask(e) {
         // get data
         let form = document.querySelector('.task-form');
         const formData = new FormData(form);
@@ -641,266 +959,74 @@ export default class UI {
         let task = new Todo(priority, title, date, description);
         // get current project
         let currentProject = document.querySelector('.bolded'); // or .active or .current ...
-        let project = this.list.getProject(currentProject.id); // TODO
+        let project = this.list.getProject(currentProject.id);
         // add task to project
         project.addTodo(task);
 
         // add task DOM
-        let taskContainer = document.querySelector('task-container');
+        let taskContainer = document.querySelector('.task-container');
         
         let toAdd = this.createTask(priority, title, date, description);
 
         taskContainer.appendChild(toAdd);
     }
-    deleteTask(event) {
+    deleteTask(e) {
+        let clickTarget = e.target;
+        let task = clickTarget.parentElement.querySelector('.title').textContent;
+        let toDelete = clickTarget.parentElement.parentElement;
         // get current project
-        
+        let currentProject = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProject.id);
         // delete task from project
-
+        project.deleteTodo(task);
         // delete from DOM
-        let toDelete = document.querySelector('.' + title);
-        let task = toDelete.parentElement;
-        task.parentElement.remove();
+        toDelete.remove();
     }
 
     showDescription(task) {
-        task.classList.remove(task);
-        task.classList.add(task-expanded);
+        task.classList.remove('task');
+        task.classList.add('task-expanded');
 
         let description = task.querySelector('.description');
-        description.classList.remove('.hidden');
+        description.classList.remove('hidden');
     }
     hideDescription(task) {
-        task.classList.remove(task-expanded);
-        task.classList.add(task);
+        task.classList.remove('task-expanded');
+        task.classList.add('task');
 
         let description = task.querySelector('.description');
-        description.classList.account('.hidden');
+        description.classList.add('hidden');
     }
 
-    checkTask(checkbox, title) {
+    checkTask(e) {
         // get current project
-
+        let currentProject = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProject.id);
+        
         // get current task
+        let checkbox = e.target.closest('.checkbox');
+        // check if task expanded
+        let task = checkbox.closest('.task')
+        ? checkbox.closest('.task').querySelector('.title').textContent 
+        : checkbox.closest('.task-expanded').querySelector('.title').textContent;
 
+        if (project.getTodo(task).getChecked()) return;
         // task set checked
-
+        project.getTodo(task).setChecked();
         // set checked DOM
         let check = document.createElement('img');
         check.src = checkIconPath;
         check.alt = 'check';
         
-        // target checkbox TODO
+        // check checkbox
         checkbox.append(check);
     }
 }
 
-
-
-
-
-
-
-
-
-
-// old methods
-// displayHome
-/*
-        // display header
-        let header = document.createElement('header');
-        header.innerHTML = `
-        <img class="banner" src="images/henrique-ferreira-QjOiTg459jI-unsplash.jpg" alt="banner">
-            <button class="menu">
-                <img src="images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="menu" width="32px">
-            </button>
-            <h1 class="title">LORD WILLING</h1>
-            <img class="account" src="images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="account" width="64px">
-            <!--Photo by <a href="https://unsplash.com/@rickpsd?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Henrique Ferreira</a> on <a href="https://unsplash.com/photos/layered-blue-mountains-fade-into-a-soft-pink-sky-QjOiTg459jI?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>-->`;
-
-        // display sidebar
-        let sidebar = document.createElement('div');
-        sidebar.classList.add('sidebar');
-        sidebar.innerHTML = `
-        <div class="sidebar">
-            <ul class="current">
-                <li>
-                    <div class="inbox">
-                        <img src="images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="inbox" width="32px">
-                        <a href="">INBOX</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="today">
-                        <img src="images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="today" width="32px">
-                        <a href="">TODAY</a>
-                       </div>
-                </li>
-                <li>
-                    <div class="week">
-                        <img src="images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="week" width="32px">
-                        <a href="">WEEK</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="month">
-                        <img src="images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="month" width="32px">
-                        <a href="">MONTH</a>
-                    </div>
-                </li>
-            </ul>
-            <div class="add-project">PROJECTS<button>+</button></div>
-            <ul class="projects">
-                <li>
-                    <div class="all">
-                        <img src="images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="all" width="32px">
-                        <a href="">ALL</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="school">
-                        <img src="images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="school" width="32px">
-                        <a href="">SCHOOL</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="work">
-                        <img src="images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="work" width="32px">
-                        <a href="">WORK</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="hobbies">
-                        <img src="images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="hobbies" width="32px">
-                        <a href="">HOBBIES</a>
-                    </div>
-                </li>
-                <li>
-                    <div class="faith">
-                        <img src="images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="faith" width="32px">
-                        <a href="">FAITH</a>
-                    </div>
-                </li>
-            </ul>
-        </div>`;
-
-        // display content
-        let content = document.createElement('div');
-        content.classList.add('main');
-        content.innerHTML = `
-        <div class="main">
-            <div class="task-container">
-                <h2 class="tasks">TASKS</h2>
-                <div class="add-task">
-                    <button>+</button>
-                    <p>ADD TASK</p>
-                </div>
-                <div class="task">
-                    <div class="left">
-                        <div class="priority">G</div>
-                        <p class="title">PAY BILLS</p>
-                        <button class="dropdown"><img src="images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="drop-down"></button>
-                        <button class="delete"><img src="images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="delete"></button>
-                    </div>
-                    <div class="right">
-                        <p class="date">2/3/2025</p>
-                        <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
-                    </div>
-                </div>
-                <div class="task-expanded">
-                    <div class="left">
-                        <div class="priority">G</div>
-                        <p class="title">PAY BILLS</p>
-                        <button class="dropdown"><img src="images/arrow_drop_up_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="drop-down"></button>
-                        <button class="delete"><img src="images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="delete"></button>
-                    </div>
-                    <div class="right">
-                        <p class="date">2/3/2025</p>
-                        <div class="checkbox"><img src="images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="check"></div>
-                    </div>
-                    <p class="description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.</p>
-                </div>
-            </div>
-            <div class="bible-verse">
-                <p class="verse">Come now, you who say, “Today or tomorrow we will go into such and such a town and spend a year there and trade and make a profit”— yet you do not know what tomorrow will bring. What is your life? For you are a mist that appears for a little time and then vanishes. Instead you ought to say, “If the Lord wills, we will live and do this or that.”</p>
-                <p class="location">James 4:13-15</p>
-            </div>
-        </div>`;
-
-        let contentContainer = document.createElement('div');
-        contentContainer.innerHTML = sidebar.innerHTML + '\n' + content.innerHTML;
-
-        */
-
-        /*
-        // append to body
-        let page = document.querySelector('.page');
-        page.append(header, contentContainer);
-        */
-
-
-// show sidebar
-/*
-        let sidebar = document.createElement(div);
-        sidebar.classList.add('sidebar');
-        sidebar.innerHTML = `
-        <ul class="current">
-                    <li>
-                        <div class="inbox">
-                            <img src="images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="inbox" width="32px">
-                            <a href="">INBOX</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="today">
-                            <img src="images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="today" width="32px">
-                            <a href="">TODAY</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="week">
-                            <img src="images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="week" width="32px">
-                            <a href="">WEEK</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="month">
-                            <img src="images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="month" width="32px">
-                            <a href="">MONTH</a>
-                        </div>
-                    </li>
-                </ul>
-                <div class="add-project">PROJECTS<button>+</button></div>
-                <ul class="projects">
-                    <li>
-                        <div class="all">
-                            <img src="images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="all" width="32px">
-                            <a href="">ALL</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="school">
-                            <img src="images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="school" width="32px">
-                            <a href="">SCHOOL</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="work">
-                            <img src="images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="work" width="32px">
-                            <a href="">WORK</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="hobbies">
-                            <img src="images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="hobbies" width="32px">
-                            <a href="">HOBBIES</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="faith">
-                            <img src="images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg" alt="faith" width="32px">
-                            <a href="">FAITH</a>
-                        </div>
-                    </li>
-                </ul>`;
-                */
+/* TODO: 
+- activate all event listeners
+- create modal function
+- refactor add project/event listener
+- refactor event delegation (one event listener, bubbling)
+- use .toggle and .matches methods
+*/

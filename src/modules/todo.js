@@ -30,7 +30,7 @@ CLASS Task
 */
 
 export default class Todo {
-    constructor(title, description, dueDate, priority, checked) {
+    constructor(priority, title, dueDate, description) {
         this.priority = priority;
         this.title = title;
         this.dueDate = dueDate;

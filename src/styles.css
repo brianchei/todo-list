@@ -212,7 +212,13 @@ ul {
     /* background-color: white; */
 }
 
-.inbox, .today, .week, .month, .all, .school, .work, .hobbies, .faith {
+.bolded {
+  font-weight: bold;
+}
+
+/* projects */
+/* #inbox, #today, #week, #month, #all, #school, #work, #hobbies, #faith */
+li > div {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -354,6 +360,18 @@ ul {
   border-radius: 4px;
 
   background-color: var(--button-green);
+}
+
+.G {
+  background-color: var(--button-green);
+}
+
+.Y {
+  background-color: #FDFD96;
+}
+
+.R {
+  background-color: var(--button-red);
 }
 
 .checkbox {

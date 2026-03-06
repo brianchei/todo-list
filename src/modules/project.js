@@ -22,9 +22,10 @@ CLASS Project
 */
 
 export default class Project {
-    constructor() {
-        this.title = '';
-        this.todos = [];
+    constructor(title, image, todos = []) {
+        this.title = title;
+        this.image = image;
+        this.todos = todos;
     }
 
     setTitle(title) {
@@ -45,12 +46,19 @@ export default class Project {
         this.todos.push(todo);
     }
     deleteTodo(title) {
-        let newTodos = this.todos.filter((todo) => todo.getTitle !== title);
+        let newTodos = this.todos.filter((todo) => todo.getTitle() !== title);
         this.todos = newTodos;
     }
 
     getTodo(title) {
-        for (todo in this.todos) {
+        /*
+        this.todos.forEach((todo) => {
+            if (todo.title === title) {
+                return todo;
+            }
+        });
+        */
+        for (const todo of this.todos) {
             if (todo.title === title) {
                 return todo;
             }
@@ -58,7 +66,7 @@ export default class Project {
     }
 
     containsTodo(title) {
-        for (todo in this.todos) {
+        for (const todo in this.todos) {
             if (todo.title === title) {
                 return true;
             }

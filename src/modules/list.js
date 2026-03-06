@@ -24,9 +24,9 @@ CLASS List
 */
 
 export default class List {
-    constructor() {
-        this.title = '';
-        this.projects = [];        
+    constructor(title, projects) {
+        this.title = title;
+        this.projects = projects;        
     }
 
     setTitle(title) {
@@ -53,8 +53,16 @@ export default class List {
     }
 
     getProject(title) {
-        for (project in projects) {
-            if (project.getTitle === title) {
+        /*
+        this.projects.forEach((project) => {
+            if (project.getTitle() === title) {
+                return project;
+            }
+        });
+        return title;
+        */
+        for (const project of this.projects) {
+            if (project.getTitle() === title) {
                 return project;
             }
         }
