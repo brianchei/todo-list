@@ -362,6 +362,14 @@ li > div {
   background-color: var(--button-green);
 }
 
+.radio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-areas: 
+    'green yellow red';
+  place-items: center;
+}
+
 .G {
   background-color: var(--button-green);
 }
@@ -372,6 +380,30 @@ li > div {
 
 .R {
   background-color: var(--button-red);
+}
+
+.form-control .green {
+  left: 16px;
+}
+
+.form-control .yellow {
+  left: 88px;
+}
+
+.form-control .red {
+  left: 172px;
+}
+
+#green {
+  grid-area: green;
+}
+
+#yellow {
+  grid-area: yellow;
+}
+
+#red {
+  grid-area: red;
 }
 
 .checkbox {
@@ -403,7 +435,7 @@ li > div {
 }
 
 .bible-verse > .location {
-
+  color: white;
 }
 
 .hidden {

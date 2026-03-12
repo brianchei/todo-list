@@ -76,6 +76,9 @@ import List from './list';
 
 export default class UI {
     constructor() {
+        // initialize todo list
+        this.list = new List('current', []);
+        
         // build homepage
         let page = document.createElement('div');
         page.classList.add('page');
@@ -90,13 +93,13 @@ export default class UI {
 
         // this.displayAccount();
 
-        // initialize todo list
-        this.list = new List('current', []);
-
         // attach event listeners
         this.addPageEventListeners();
         this.addProjectEventListeners();
         this.addTaskEventListeners();
+
+        // add placeholder tasks
+        this.createPlaceholders();
     }
 
     // LOADING CONTENT
@@ -156,6 +159,13 @@ export default class UI {
         let currentImagePaths = [inboxIconPath, todayIconPath, weekIconPath, monthIconPath];
 
         for (let projectName of currentProjects) {
+            // this.addProject(projectName, currentImagePaths[currentProjects.indexOf(projectName)]);
+            
+            // add project to list
+            let toAdd = new Project(projectName, currentImagePaths[currentProjects.indexOf(projectName)], []);
+            this.list.addProject(toAdd);
+
+            // add project to DOM
             let li = document.createElement('li');
 
             let div = document.createElement('div');
@@ -166,7 +176,7 @@ export default class UI {
             img.width = '32';
 
             let link = document.createElement('a');
-            // link.href = TODO
+            // link.href = ''; // TODO
             link.textContent = projectName.toUpperCase();
 
             div.append(img, link);
@@ -191,6 +201,11 @@ export default class UI {
         let defaultImagePaths = [allIconPath, schoolIconPath, workIconPath, hobbiesIconPath, faithIconPath];
 
         for (let projectName of defaultProjects) {
+            // add project to list
+            let toAdd = new Project(projectName, currentImagePaths[currentProjects.indexOf(projectName)], []);
+            this.list.addProject(toAdd);
+
+            // add project to DOM
             let li = document.createElement('li');
 
             let div = document.createElement('div');
@@ -201,7 +216,7 @@ export default class UI {
             img.width = '32';
 
             let link = document.createElement('a');
-            // link.href = TODO
+            // link.href = ''; // TODO
             link.textContent = projectName.toUpperCase();
 
             div.append(img, link);
@@ -238,17 +253,12 @@ export default class UI {
 
         addTask.append(addTaskButton, addTaskText);
 
-        let task = this.createTask('G', 'PAY BILLS', '2/3/2025');
+        // task list
+        let taskList = document.createElement('ul');
+        taskList.classList.add('task-list');
 
-        // task expanded
-        let taskExpanded = this.createTask('G', 'PAY BILLS', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
-        taskExpanded.classList.remove('task');
-        taskExpanded.classList.add('task-expanded');
-
-        
-        // build container
-        taskContainer.append(heading, addTask, task, taskExpanded);
-
+        // build task list
+        taskContainer.append(heading, addTask, taskList);
 
         // bible verse
         let bibleVerse = document.createElement('div');
@@ -272,7 +282,7 @@ export default class UI {
 
     // task (call function)
     createTask(setPriority, setTitle, setDate, setDescription) {
-        let task = document.createElement('div');
+        let task = document.createElement('li');
         task.classList.add('task');
 
         // left
@@ -343,6 +353,32 @@ export default class UI {
         task.append(taskLeft, taskRight);
 
         return task;
+    }
+
+    createPlaceholders() {
+        // task
+        let task = this.createTask('G', 'PAY BILLS', '2/3/2025', '');
+
+        // task expanded
+        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
+        taskExpanded.classList.remove('task');
+        taskExpanded.classList.add('task-expanded');
+
+        // make placeholder todos
+        let todo = new Todo('G', 'PAY BILLS', '2/3/2025', '');
+        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.');
+
+        // add tasks to inbox
+        let currentProject = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProject.id);
+
+        // add todo to project
+        project.addTodo(todo);
+        project.addTodo(todoExpanded);
+
+        // add placeholder todos to DOM
+        let taskList = document.querySelector('.task-list');
+        taskList.append(task, taskExpanded);
     }
 
     addPageEventListeners() {
@@ -472,6 +508,9 @@ export default class UI {
             let username = formData.get('username');
             let password = formData.get('password');
 
+            // reset form
+            form.reset();
+
             // TODO: load data
         });
 
@@ -490,8 +529,31 @@ export default class UI {
         modalOverlay.classList.add('hidden');
     }
 
-    displayPage(page) {
+    displayPage(project) {
         // show/switch to/navigate project pages
+        let taskList = document.querySelector('.task-list');
+
+        // clear tasks
+        while (taskList.firstChild) {
+            taskList.removeChild(taskList.firstChild);
+        }
+
+        // load project tasks
+        let selectedProj = this.list.getProject(project);
+        let tasks = selectedProj.getTodos();
+
+        // update DOM
+        for (let task of tasks) {
+            let toAdd = this.createTask(task.getPriority(), task.getTitle(), task.getDueDate(), task.getDescription());
+            taskList.append(toAdd);
+        }
+
+        // update current project
+        let bolded = document.querySelector('.bolded');
+        bolded.classList.remove('bolded');
+
+        let currentProject = document.querySelector('#' + selectedProj.getTitle());
+        currentProject.classList.add('bolded');
     }
 
 
@@ -499,7 +561,7 @@ export default class UI {
         // TODO: add functionality to fetch current project (date = today, week, month)
 
         // Switch project
-        let projects = document.querySelectorAll('li');
+        let projects = document.querySelectorAll('.sidebar li');
         projects.forEach((project) => {
             project.querySelector('a').addEventListener('click', (e) => {
                 let clickTarget = e.target;
@@ -523,24 +585,6 @@ export default class UI {
         let addProject = document.querySelector('.add-project > button');
         addProject.addEventListener('click', () => {
             this.getProjectData();
-
-            let submitProject = document.querySelector('.project-form submit');
-            submitProject.addEventListener('click', (e) => {
-                // TODO: maybe close form before getting data
-
-                // get data
-                let form = document.querySelector('.project-form');
-                const formData = new FormData(form);
-                let title = formData.get('title');
-                let icon = formData.get('icon');
-
-                // add project to list
-                let toAdd = new Project(title, icon, []);
-                this.list.addProject(toAdd);
-
-                // add project to DOM
-                addProject(title, icon);
-            });
         });
 
         // TODO: Delete project
@@ -552,6 +596,15 @@ export default class UI {
 
     // project data
     getProjectData() {
+        let projectForm = document.querySelector('.project-form');
+        if (projectForm) {
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modalOverlay.classList.remove('hidden');
+            let modal = projectForm.parentElement;
+            modal.showModal();
+            return;
+        }
+
         // construct modal
         let modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
@@ -575,6 +628,13 @@ export default class UI {
         let closeForm = document.createElement('button');
         closeForm.classList.add('close-form');
         closeForm.textContent = 'x';
+
+        closeForm.addEventListener('click', () => {
+            let modal = document.querySelector('dialog');
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modal.close();
+            modalOverlay.classList.add('hidden');
+        });
 
         formTop.append(heading, closeForm);
 
@@ -616,6 +676,26 @@ export default class UI {
         submit.type = 'submit';
         submit.textContent = 'Submit';
 
+        submit.addEventListener('click', (e) => {
+            // close form before getting data
+            let modal = document.querySelector('dialog');
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modal.close();
+            modalOverlay.classList.add('hidden');
+
+            // get data
+            let form = document.querySelector('.project-form');
+            const formData = new FormData(form);
+            let title = formData.get('title');
+            let icon = formData.get('icon');
+
+            // reset form
+            form.reset();
+
+            // add project to DOM
+            this.addProject(title, icon);
+        });
+
         formBottom.append(titleFormControl, iconFormControl, submit);
 
 
@@ -626,7 +706,9 @@ export default class UI {
     }
 
     addProject(title, image) {
-        // TODO: add project to list
+        // add project to list
+        let toAdd = new Project(title, image, []);
+        this.list.addProject(toAdd);
 
         // add project to DOM
         let projects = document.querySelector('.projects');
@@ -643,7 +725,7 @@ export default class UI {
 
         projectContainer.append(image, link);
         li.append(projectContainer);
-        projects.append('li');
+        projects.append(li);
     }
     deleteProject(title) {
         this.list.deleteProject(title);
@@ -669,32 +751,11 @@ export default class UI {
 
 
     addTaskEventListeners() {
-        // add placeholder project/task
-        // TODO: set inbox bolded (for now)
+        // set inbox bolded by default
         let inbox = document.querySelector('#inbox');
         inbox.classList.add('bolded');
 
-        let projectToAdd = new Project('inbox', 'img', []);
-
-        this.list.addProject(projectToAdd);
-
-        // get current project
-        let currentProject = document.querySelector('.bolded');
-        let project = this.list.getProject(currentProject.id);
-
-        // TODO: add dummy tasks to inbox
-        // create task instance
-        let dummyTask = new Todo('G', 'G', 'G', 'G');
-
-        // add task to project
-        projectToAdd.addTodo(dummyTask);
-
-        // add task DOM
         let taskContainer = document.querySelector('.task-container');
-        
-        let toAdd = this.createTask(dummyTask.getPriority(), dummyTask.getTitle(), dummyTask.getDueDate(), dummyTask.getDescription());
-
-        taskContainer.appendChild(toAdd);
 
         // Add task
         let addTask = document.querySelector('.add-task > button');
@@ -705,6 +766,10 @@ export default class UI {
         taskContainer.addEventListener('click', (e) => {
             let clickTarget = e.target;
 
+            // get current project
+            let currentProject = document.querySelector('.bolded');
+            let project = this.list.getProject(currentProject.id);
+
             // exit if not task related click
             if (!clickTarget.closest('.task') && !clickTarget.closest('.task-expanded')) {
                 return;
@@ -713,7 +778,7 @@ export default class UI {
             // get current task
             let currentTaskElement = clickTarget.closest('.task') ? clickTarget.closest('.task') : clickTarget.closest('.task-expanded');
             let currentTaskTitle = currentTaskElement.querySelector('.title').textContent;
-            let currentTask = projectToAdd.getTodo(currentTaskTitle);
+            let currentTask = project.getTodo(currentTaskTitle);
 
             // priority
             if (clickTarget.matches('.priority')) {
@@ -801,7 +866,7 @@ export default class UI {
 
     // task data
     getTaskData() {
-        // TODO: if task modal already exists unhide
+        // if task modal already exists unhide
         let taskForm = document.querySelector('.task-form');
         if (taskForm) {
             let modalOverlay = document.querySelector('.modal-overlay');
@@ -836,6 +901,14 @@ export default class UI {
         closeForm.classList.add('close-form');
         closeForm.textContent = 'x';
 
+        // close
+        closeForm.addEventListener('click', (e) => {
+            let modal = document.querySelector('dialog');
+            let modalOverlay = document.querySelector('.modal-overlay');
+            modal.close();
+            modalOverlay.classList.add('hidden');
+        });
+
         formTop.append(heading, closeForm);
 
         // form bottom
@@ -845,6 +918,7 @@ export default class UI {
         // priority
         let priorityFormControl = document.createElement('div');
         priorityFormControl.classList.add('form-control');
+        priorityFormControl.classList.add('radio');
         // green
         let priorityGreen = document.createElement('label');
         priorityGreen.htmlFor = 'green';
@@ -855,6 +929,7 @@ export default class UI {
         priorityInputGreen.id = 'green';
         let priorityTextGreen = document.createElement('span');
         priorityTextGreen.textContent = 'Green';
+        priorityTextGreen.classList.add('green');
 
         priorityFormControl.append(priorityGreen, priorityInputGreen, priorityTextGreen);
 
@@ -868,6 +943,7 @@ export default class UI {
         priorityInputYellow.id = 'yellow';
         let priorityTextYellow = document.createElement('span');
         priorityTextYellow.textContent = 'Yellow';
+        priorityTextYellow.classList.add('yellow');
 
         priorityFormControl.append(priorityYellow, priorityInputYellow, priorityTextYellow);
 
@@ -881,6 +957,7 @@ export default class UI {
         priorityInputRed.id = 'red';
         let priorityTextRed = document.createElement('span');
         priorityTextRed.textContent = 'Red';
+        priorityTextRed.classList.add('red');
 
         priorityFormControl.append(priorityRed, priorityInputRed, priorityTextRed);
 
@@ -936,7 +1013,7 @@ export default class UI {
         submit.textContent = 'Submit';
 
         submit.addEventListener('click', (e) => {
-            // TODO: maybe close form before getting data
+            // close form before getting data
             let modal = document.querySelector('dialog');
             let modalOverlay = document.querySelector('.modal-overlay');
             modal.close();
@@ -980,6 +1057,9 @@ export default class UI {
         let date = formData.get('date');
         let description = formData.get('description');
 
+        // reset form
+        form.reset();
+
         // create task instance
         let task = new Todo(priority, title, date, description);
         // get current project
@@ -989,11 +1069,11 @@ export default class UI {
         project.addTodo(task);
 
         // add task DOM
-        let taskContainer = document.querySelector('.task-container');
+        let taskList = document.querySelector('.task-list');
         
         let toAdd = this.createTask(priority, title, date, description);
 
-        taskContainer.appendChild(toAdd);
+        taskList.appendChild(toAdd);
     }
     deleteTask(e) {
         let clickTarget = e.target;
@@ -1013,6 +1093,7 @@ export default class UI {
         task.classList.add('task-expanded');
 
         let description = task.querySelector('.description');
+        if (description === null) return;
         description.classList.remove('hidden');
     }
     hideDescription(task) {
@@ -1020,6 +1101,7 @@ export default class UI {
         task.classList.add('task');
 
         let description = task.querySelector('.description');
+        if (description === null) return;
         description.classList.add('hidden');
     }
 
@@ -1049,8 +1131,8 @@ export default class UI {
 }
 
 /* TODO: 
-- reset form/modal/popup information after submit/close
-- fix task form priority
+- add accessibility for keypress
+- display description on load for placeholder task expanded
 - activate all event listeners
 - create modal function
 - refactor add project/event listener
