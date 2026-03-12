@@ -425,8 +425,9 @@ export default class UI {
         }
 
         // construct modal
-        let modalOverlay = document.createElement('div');
+        let modalOverlay = document.querySelector('.modal-overlay') ? document.querySelector('.modal-overlay') : document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
+        modalOverlay.classList.remove('hidden');
         let modal = document.createElement('dialog');
         modal.classList.add('modal');
         let form = document.createElement('form');
@@ -449,10 +450,7 @@ export default class UI {
         closeForm.textContent = 'x';
 
         closeForm.addEventListener('click', () => {
-            let modal = document.querySelector('dialog');
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modal.close();
-            modalOverlay.classList.add('hidden');
+            this.hideAccount();
         });
 
         formTop.append(heading, closeForm);
@@ -606,8 +604,9 @@ export default class UI {
         }
 
         // construct modal
-        let modalOverlay = document.createElement('div');
+        let modalOverlay = document.querySelector('.modal-overlay') ? document.querySelector('.modal-overlay') : document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
+        modalOverlay.classList.remove('hidden');
         let modal = document.createElement('dialog');
         modal.classList.add('modal');
         let form = document.createElement('form');
@@ -878,8 +877,9 @@ export default class UI {
 
         // create task modal
         // construct modal
-        let modalOverlay = document.createElement('div');
+        let modalOverlay = document.querySelector('.modal-overlay') ? document.querySelector('.modal-overlay') : document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
+        modalOverlay.classList.remove('hidden');
         let modal = document.createElement('dialog');
         modal.classList.add('modal');
         let form = document.createElement('form');
@@ -1131,6 +1131,14 @@ export default class UI {
 }
 
 /* TODO: 
+- implement all project
+- delete/edit project
+- safeguard against empty input
+- icon selection/library or web url input
+- inbox functionality (daily tasks)
+- date fn
+- dropdown arrow switching
+- project mouse pointer clicking
 - add accessibility for keypress
 - display description on load for placeholder task expanded
 - activate all event listeners
@@ -1138,4 +1146,10 @@ export default class UI {
 - refactor add project/event listener
 - refactor event delegation (one event listener, bubbling)
 - use .toggle and .matches methods
+- STORAGE
+*/
+
+/* Possible features
+- color/theme switching
+
 */
