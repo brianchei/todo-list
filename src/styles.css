@@ -224,6 +224,10 @@ li > div {
   gap: 8px;
 }
 
+.sidebar li:hover {
+  text-decoration: underline;
+}
+
 .add-project {
   display: flex;
   align-items: center;

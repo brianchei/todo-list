@@ -158,9 +158,7 @@ export default class UI {
         let currentProjects = ['inbox', 'today', 'week', 'month'];
         let currentImagePaths = [inboxIconPath, todayIconPath, weekIconPath, monthIconPath];
 
-        for (let projectName of currentProjects) {
-            // this.addProject(projectName, currentImagePaths[currentProjects.indexOf(projectName)]);
-            
+        for (let projectName of currentProjects) {            
             // add project to list
             let toAdd = new Project(projectName, currentImagePaths[currentProjects.indexOf(projectName)], []);
             this.list.addProject(toAdd);
@@ -176,7 +174,6 @@ export default class UI {
             img.width = '32';
 
             let link = document.createElement('a');
-            // link.href = ''; // TODO
             link.textContent = projectName.toUpperCase();
 
             div.append(img, link);
@@ -216,7 +213,6 @@ export default class UI {
             img.width = '32';
 
             let link = document.createElement('a');
-            // link.href = ''; // TODO
             link.textContent = projectName.toUpperCase();
 
             div.append(img, link);
@@ -325,16 +321,6 @@ export default class UI {
         let checkbox = document.createElement('div');
         checkbox.classList.add('checkbox');
 
-        // TODO: delete automatic check
-        /*
-        let checkboxIcon = document.createElement('img');
-        checkboxIcon.src = checkIconPath;
-        checkboxIcon.alt = 'checkbox';
-        checkboxIcon.width = 32;
-
-        checkbox.append(checkboxIcon);
-        */
-
         taskRight.append(date, checkbox);
 
         if (setDescription) {
@@ -357,16 +343,16 @@ export default class UI {
 
     createPlaceholders() {
         // task
-        let task = this.createTask('G', 'PAY BILLS', '2/3/2025', '');
+        let task = this.createTask('G', 'PAY BILLS', '2026-03-12', '');
 
         // task expanded
-        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
+        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
         taskExpanded.classList.remove('task');
         taskExpanded.classList.add('task-expanded');
 
         // make placeholder todos
-        let todo = new Todo('G', 'PAY BILLS', '2/3/2025', '');
-        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2/3/2025', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.');
+        let todo = new Todo('G', 'PAY BILLS', '2026-03-12', '');
+        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.');
 
         // add tasks to inbox
         let currentProject = document.querySelector('.bolded');
@@ -414,7 +400,7 @@ export default class UI {
     }
 
     displayAccount() {
-        // TODO: if account modal already exists unhide
+        // if account modal already exists unhide
         let accountForm = document.querySelector('.account-form');
         if (accountForm) {
             let modalOverlay = document.querySelector('.modal-overlay');
@@ -494,7 +480,7 @@ export default class UI {
         submit.textContent = 'Submit';
 
         submit.addEventListener('click', (e) => {
-            // TODO: maybe close form before getting data
+            // close form before getting data
             let modal = document.querySelector('dialog');
             let modalOverlay = document.querySelector('.modal-overlay');
             modal.close();
@@ -509,7 +495,7 @@ export default class UI {
             // reset form
             form.reset();
 
-            // TODO: load data
+            // TODO: load task/projects/user data
         });
 
         formBottom.append(usernameFormControl, passwordFormControl, submit);
@@ -565,19 +551,8 @@ export default class UI {
                 let clickTarget = e.target;
                 let currentProject = clickTarget.parentElement.id;
                 this.displayPage(currentProject);
-                // TODO: set current .bolded class
             });
         })
-        /*
-        for (project of projects) {
-            project.querySelector('a').addEventListener('click', (e) => {
-                let clickTarget = e.target;
-                let currentProject = clickTarget.parentElement.id;
-                this.displayPage(currentProject);
-                // TODO: set current .bolded class
-            });
-        }
-        */
 
         // Add project
         let addProject = document.querySelector('.add-project > button');
@@ -585,7 +560,40 @@ export default class UI {
             this.getProjectData();
         });
 
-        // TODO: Delete project
+        // Delete project
+        let pageProjects = document.querySelectorAll('.sidebar li div');
+        pageProjects.forEach((project) => {
+            project.addEventListener('mouseenter', (e) => {
+                if (!project.querySelector('.delete')) {
+                    // create delete button
+                    let deleteButton = document.createElement('button');
+                    deleteButton.classList.add('delete');
+                    let deleteIcon = document.createElement('img');
+                    deleteIcon.src = deleteIconPath;
+                    deleteIcon.alt = 'delete';
+                    deleteIcon.style.minWidth = '24px';
+                    deleteButton.append(deleteIcon);
+                                        
+                    // delete functionality
+                    deleteButton.addEventListener('click', () => {
+                        // remove project from list
+                        this.list.deleteProject(project.id);
+
+                        // remove project from DOM
+                        project.parentElement.remove();
+                    });
+
+                    // append to DOM
+                    project.append(deleteButton);
+                }
+            });
+
+            project.addEventListener('mouseleave', () => {
+                let deleteButton = project.querySelector('.delete');
+                deleteButton.remove();
+            });
+        });
+
 
         // All
 
@@ -719,7 +727,6 @@ export default class UI {
         img.alt = title;
         img.width = '32';
         let link = document.createElement('a');
-        link.href = ''; // TODO
         link.textContent = title.toUpperCase();
 
         projectContainer.append(image, link);
@@ -842,7 +849,6 @@ export default class UI {
                 }
             }
 
-            // TODO: set to toggle
             // check
             if ((clickTarget.matches('.checkbox') || clickTarget.matches('.checkbox img'))) {
                 this.checkTask(e);
@@ -1027,14 +1033,6 @@ export default class UI {
             let date = formData.get('date');
             let description = formData.get('description');
 
-            /*
-            // add task to current project
-            let toAdd = new Todo(title, description, date, priority);
-            let currentProject = document.querySelector('.bolded'); // or .active or .current ...
-            let project = this.list.getProject(currentProject.id);
-            project.addTodo(toAdd);
-            */
-
             // add project to DOM
             this.addTask(e);
         });
@@ -1147,9 +1145,10 @@ export default class UI {
 - refactor event delegation (one event listener, bubbling)
 - use .toggle and .matches methods
 - STORAGE
+- strictly refactor SOLID (delegate functionality to only respective module)
 */
 
 /* Possible features
 - color/theme switching
-
+- set checkmark to toggle
 */
