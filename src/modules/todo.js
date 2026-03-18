@@ -76,7 +76,7 @@ export default class Todo {
         */
 
     setChecked() {
-        this.checked = true;
+        this.checked = !this.checked;
     }
     getChecked() {
         return this.checked;

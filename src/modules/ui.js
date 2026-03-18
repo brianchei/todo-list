@@ -66,6 +66,7 @@ import workIconPath from '../images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.
 import hobbiesIconPath from '../images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 import faithIconPath from '../images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 import dropdownIconPath from '../images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
+import dropUpIconPath from '../images/arrow_drop_up_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 import deleteIconPath from '../images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 import checkIconPath from '../images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
 
@@ -97,6 +98,7 @@ export default class UI {
         this.addPageEventListeners();
         this.addProjectEventListeners();
         this.addTaskEventListeners();
+        this.addKeyEventListeners();
 
         // add placeholder tasks
         this.createPlaceholders();
@@ -175,6 +177,7 @@ export default class UI {
 
             let link = document.createElement('a');
             link.textContent = projectName.toUpperCase();
+            link.href = '#';
 
             div.append(img, link);
             li.append(div);
@@ -214,6 +217,7 @@ export default class UI {
 
             let link = document.createElement('a');
             link.textContent = projectName.toUpperCase();
+            link.href = '#';
 
             div.append(img, link);
             li.append(div);
@@ -346,13 +350,13 @@ export default class UI {
         let task = this.createTask('G', 'PAY BILLS', '2026-03-12', '');
 
         // task expanded
-        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.')
+        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.')
         taskExpanded.classList.remove('task');
-        taskExpanded.classList.add('task-expanded');
+        taskExpanded.classList.add('task');
 
         // make placeholder todos
         let todo = new Todo('G', 'PAY BILLS', '2026-03-12', '');
-        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere. Maecenas nec venenatis nulla. Nunc eleifend justo et est viverra, ac congue arcu venenatis. Nullam dignissim, augue id vulputate bibendum, odio ligula pretium ante, bibendum ultrices nisl lacus viverra dui. Sed vulputate turpis tempor est aliquam, vel egestas neque posuere.');
+        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.');
 
         // add tasks to inbox
         let currentProject = document.querySelector('.bolded');
@@ -399,15 +403,19 @@ export default class UI {
         sidebar.classList.add('hidden');
     }
 
+    unhideModal(formType) {
+        let modalOverlay = document.querySelector('.modal-overlay');
+        modalOverlay.classList.remove('hidden');
+        let modal = formType.parentElement;
+        modal.showModal();
+        return;
+    }
+
     displayAccount() {
         // if account modal already exists unhide
         let accountForm = document.querySelector('.account-form');
         if (accountForm) {
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modalOverlay.classList.remove('hidden');
-            let modal = accountForm.parentElement;
-            modal.showModal();
-            return;
+            this.unhideModal(accountForm);
         }
 
         // construct modal
@@ -436,6 +444,18 @@ export default class UI {
         closeForm.textContent = 'x';
 
         closeForm.addEventListener('click', () => {
+            /*
+            let modal = document.querySelector('dialog');
+
+            // set required inputs to disabled (prevent blocked state)
+            let inputs = modal.querySelectorAll('input');
+            inputs.forEach((input) => {
+                if (input.required === true) {
+                    input.disabled = true;
+                }
+            });
+            */
+
             this.hideAccount();
         });
 
@@ -454,6 +474,7 @@ export default class UI {
         usernameInput.type = 'text';
         usernameInput.name = 'username';
         usernameInput.id = 'username';
+        // usernameInput.required = true;
         let usernameText = document.createElement('span');
         usernameText.textContent = 'Username';
 
@@ -468,6 +489,7 @@ export default class UI {
         passwordInput.type = 'text';
         passwordInput.name = 'password';
         passwordInput.id = 'password';
+        // passwordInput.required = true;
         let passwordText = document.createElement('span');
         passwordText.textContent = 'Password';
 
@@ -480,22 +502,7 @@ export default class UI {
         submit.textContent = 'Submit';
 
         submit.addEventListener('click', (e) => {
-            // close form before getting data
-            let modal = document.querySelector('dialog');
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modal.close();
-            modalOverlay.classList.add('hidden');
-
-            // get data
-            let form = document.querySelector('.account-form');
-            const formData = new FormData(form);
-            let username = formData.get('username');
-            let password = formData.get('password');
-
-            // reset form
-            form.reset();
-
-            // TODO: load task/projects/user data
+            this.submitAccount(e);
         });
 
         formBottom.append(usernameFormControl, passwordFormControl, submit);
@@ -511,6 +518,32 @@ export default class UI {
         let modalOverlay = document.querySelector('.modal-overlay');
         modal.close();
         modalOverlay.classList.add('hidden');
+    }
+
+    submitAccount(e) {
+        // get data
+        let form = document.querySelector('.account-form');
+        const formData = new FormData(form);
+        let username = formData.get('username');
+        let password = formData.get('password');
+
+        // display message if input/s empty
+        if (username.length === 0 || password.length === 0) {
+            e.preventDefault();
+            alert('Please fill out username & password');
+            return;
+        };
+
+        // close form after getting data
+        let modal = document.querySelector('dialog');
+        let modalOverlay = document.querySelector('.modal-overlay');
+        modal.close();
+        modalOverlay.classList.add('hidden');
+
+        // reset form
+        form.reset();
+
+        // TODO: load task/projects/user data
     }
 
     displayPage(project) {
@@ -542,7 +575,13 @@ export default class UI {
 
 
     addProjectEventListeners() {
-        // TODO: add functionality to fetch current project (date = today, week, month)
+        // TODO: add functionality to fetch current project (date = today, week, month), inbox
+        // get all projects
+
+        // get all todos of each project
+
+        // if date is before or of today, add to inbox
+
 
         // Switch project
         let projects = document.querySelectorAll('.sidebar li');
@@ -562,9 +601,10 @@ export default class UI {
 
         // Delete project
         let pageProjects = document.querySelectorAll('.sidebar li div');
+        let permanentProjects = ['inbox', 'today', 'week', 'month'];
         pageProjects.forEach((project) => {
-            project.addEventListener('mouseenter', (e) => {
-                if (!project.querySelector('.delete')) {
+            if (!project.querySelector('.delete') && !permanentProjects.includes(project.id)) {
+                project.addEventListener('mouseenter', (e) => {
                     // create delete button
                     let deleteButton = document.createElement('button');
                     deleteButton.classList.add('delete');
@@ -576,24 +616,39 @@ export default class UI {
                                         
                     // delete functionality
                     deleteButton.addEventListener('click', () => {
-                        // remove project from list
-                        this.list.deleteProject(project.id);
-
-                        // remove project from DOM
-                        project.parentElement.remove();
+                        this.deleteProject(project);
                     });
 
                     // append to DOM
                     project.append(deleteButton);
-                }
-            });
+                });
 
-            project.addEventListener('mouseleave', () => {
-                let deleteButton = project.querySelector('.delete');
-                deleteButton.remove();
-            });
+                project.addEventListener('mouseleave', () => {
+                    let deleteButton = project.querySelector('.delete');
+                    deleteButton.remove();
+                });
+        }
         });
 
+        // Edit project
+        let projectIcons = document.querySelectorAll('li div img');
+        projectIcons.forEach((projectIcon) => {
+            projectIcon.addEventListener('click', (e) => {
+                let target = e.target;
+                let project = target.parentElement;
+                let currentProjectTitle = e.target.closest('div').id;
+                // prompt new title
+                let newTitle = prompt('New title?', currentProjectTitle);
+                // keep same if empty input or cancel
+                if (newTitle !== null && newTitle.length) {
+                    // change title in list
+                    this.list.getProject(currentProjectTitle).setTitle(newTitle);
+                    // change title and id on DOM
+                    project.id = newTitle;
+                    target.nextElementSibling.textContent = newTitle;
+                }
+            });
+        });
 
         // All
 
@@ -604,11 +659,7 @@ export default class UI {
     getProjectData() {
         let projectForm = document.querySelector('.project-form');
         if (projectForm) {
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modalOverlay.classList.remove('hidden');
-            let modal = projectForm.parentElement;
-            modal.showModal();
-            return;
+            this.unhideModal(projectForm);
         }
 
         // construct modal
@@ -637,10 +688,16 @@ export default class UI {
         closeForm.textContent = 'x';
 
         closeForm.addEventListener('click', () => {
-            let modal = document.querySelector('dialog');
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modal.close();
-            modalOverlay.classList.add('hidden');
+            this.hideProjectData();
+            /*
+            // set required inputs to disabled (prevent blocked state)
+            let inputs = modal.querySelectorAll('input');
+            inputs.forEach((input) => {
+                if (input.required === true) {
+                    input.disabled = true;
+                }
+            });
+            */
         });
 
         formTop.append(heading, closeForm);
@@ -658,6 +715,7 @@ export default class UI {
         titleInput.type = 'text';
         titleInput.name = 'title';
         titleInput.id = 'title';
+        // titleInput.required = true;
         let titleText = document.createElement('span');
         titleText.textContent = 'Title';
 
@@ -669,7 +727,7 @@ export default class UI {
         let icon = document.createElement('label');
         icon.htmlFor = 'icon';
         let iconInput = document.createElement('input');
-        iconInput.type = 'text';
+        iconInput.type = 'text'; // TODO: change to file input, handle in project.js
         iconInput.name = 'icon';
         iconInput.id = 'icon';
         let iconText = document.createElement('span');
@@ -684,23 +742,7 @@ export default class UI {
         submit.textContent = 'Submit';
 
         submit.addEventListener('click', (e) => {
-            // close form before getting data
-            let modal = document.querySelector('dialog');
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modal.close();
-            modalOverlay.classList.add('hidden');
-
-            // get data
-            let form = document.querySelector('.project-form');
-            const formData = new FormData(form);
-            let title = formData.get('title');
-            let icon = formData.get('icon');
-
-            // reset form
-            form.reset();
-
-            // add project to DOM
-            this.addProject(title, icon);
+            this.submitProject(e);
         });
 
         formBottom.append(titleFormControl, iconFormControl, submit);
@@ -710,6 +752,41 @@ export default class UI {
 
         document.body.append(modalOverlay);
         modal.showModal();
+    }
+
+    hideProjectData() {
+        let modal = document.querySelector('dialog');
+        let modalOverlay = document.querySelector('.modal-overlay');
+
+        modal.close();
+        modalOverlay.classList.add('hidden');
+    }
+
+    submitProject(e) {
+        // get data
+        let form = document.querySelector('.project-form');
+        const formData = new FormData(form);
+        let title = formData.get('title');
+        let icon = formData.get('icon');
+
+        // display message if input/s empty
+        if (title.length === 0) {
+            e.preventDefault();
+            alert('Please fill out title');
+            return;
+        }
+
+        // close form after getting data
+        let modal = document.querySelector('dialog');
+        let modalOverlay = document.querySelector('.modal-overlay');
+        modal.close();
+        modalOverlay.classList.add('hidden');
+
+        // reset form
+        form.reset();
+
+        // add project to DOM
+        this.addProject(title, icon);
     }
 
     addProject(title, image) {
@@ -728,17 +805,22 @@ export default class UI {
         img.width = '32';
         let link = document.createElement('a');
         link.textContent = title.toUpperCase();
+        link.href = '#';
 
         projectContainer.append(image, link);
         li.append(projectContainer);
         projects.append(li);
     }
-    deleteProject(title) {
-        this.list.deleteProject(title);
+    deleteProject(project) {
+        // remove project from list
+        this.list.deleteProject(project.id);
 
-        let toDelete = document.querySelector('.' + title);
-        let listItem = toDelete.parentElement;
-        listItem.remove();
+        // remove project from DOM
+        project.parentElement.remove();
+
+        // set inbox to current (bolded)
+        let inbox = document.querySelector('#inbox');
+        inbox.classList.add('bolded');
     }
 
     editProject(title, newTitle, image) {
@@ -874,11 +956,7 @@ export default class UI {
         // if task modal already exists unhide
         let taskForm = document.querySelector('.task-form');
         if (taskForm) {
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modalOverlay.classList.remove('hidden');
-            let modal = taskForm.parentElement;
-            modal.showModal();
-            return;
+            this.unhideModal(taskForm);
         }
 
         // create task modal
@@ -909,10 +987,17 @@ export default class UI {
 
         // close
         closeForm.addEventListener('click', (e) => {
-            let modal = document.querySelector('dialog');
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modal.close();
-            modalOverlay.classList.add('hidden');
+            this.hideTaskData();
+
+            /*
+            // set required inputs to disabled (prevent blocked state)
+            let inputs = modal.querySelectorAll('input');
+            inputs.forEach((input) => {
+                if (input.required === true) {
+                    input.disabled = true;
+                }
+            });
+            */
         });
 
         formTop.append(heading, closeForm);
@@ -933,6 +1018,7 @@ export default class UI {
         priorityInputGreen.name = 'priority';
         priorityInputGreen.value = 'G';
         priorityInputGreen.id = 'green';
+        // priorityInputGreen.required = true;
         let priorityTextGreen = document.createElement('span');
         priorityTextGreen.textContent = 'Green';
         priorityTextGreen.classList.add('green');
@@ -947,6 +1033,7 @@ export default class UI {
         priorityInputYellow.name = 'priority';
         priorityInputYellow.value = 'Y';
         priorityInputYellow.id = 'yellow';
+        // priorityInputYellow.required = true;
         let priorityTextYellow = document.createElement('span');
         priorityTextYellow.textContent = 'Yellow';
         priorityTextYellow.classList.add('yellow');
@@ -961,6 +1048,7 @@ export default class UI {
         priorityInputRed.name = 'priority';
         priorityInputRed.value = 'R';
         priorityInputRed.id = 'red';
+        // priorityInputRed.required = true;
         let priorityTextRed = document.createElement('span');
         priorityTextRed.textContent = 'Red';
         priorityTextRed.classList.add('red');
@@ -977,6 +1065,7 @@ export default class UI {
         titleInput.type = 'text';
         titleInput.name = 'title';
         titleInput.id = 'title';
+        // titleInput.required = true;
         let titleText = document.createElement('span');
         titleText.textContent = 'Title';
 
@@ -1019,22 +1108,7 @@ export default class UI {
         submit.textContent = 'Submit';
 
         submit.addEventListener('click', (e) => {
-            // close form before getting data
-            let modal = document.querySelector('dialog');
-            let modalOverlay = document.querySelector('.modal-overlay');
-            modal.close();
-            modalOverlay.classList.add('hidden');
-
-            // get data
-            let form = document.querySelector('.task-form');
-            const formData = new FormData(form);
-            let priority = formData.get('priority');
-            let title = formData.get('title');
-            let date = formData.get('date');
-            let description = formData.get('description');
-
-            // add project to DOM
-            this.addTask(e);
+            this.submitTask(e);
         });
 
         formBottom.append(priorityFormControl, titleFormControl, dateFormControl, descriptionFormControl, submit);
@@ -1044,6 +1118,40 @@ export default class UI {
 
         document.body.append(modalOverlay);
         modal.showModal();
+    }
+
+    hideTaskData() {
+        let modal = document.querySelector('dialog');
+        let modalOverlay = document.querySelector('.modal-overlay');
+
+        modal.close();
+        modalOverlay.classList.add('hidden');
+    }
+
+    submitTask(e) {
+        // get data
+        let form = document.querySelector('.task-form');
+        const formData = new FormData(form);
+        let priority = formData.get('priority');
+        let title = formData.get('title');
+        let date = formData.get('date');
+        let description = formData.get('description');
+
+        // display message if input/s empty
+        if (!priority || title.length === 0) {
+            e.preventDefault();
+            alert('Please fill out priority & title');
+            return;
+        }
+
+        // close form after getting data
+        let modal = document.querySelector('dialog');
+        let modalOverlay = document.querySelector('.modal-overlay');
+        modal.close();
+        modalOverlay.classList.add('hidden');
+
+        // add project to DOM
+        this.addTask(e);
     }
     
     addTask(e) {
@@ -1090,6 +1198,9 @@ export default class UI {
         task.classList.remove('task');
         task.classList.add('task-expanded');
 
+        let dropdown = task.querySelector('.dropdown img');
+        dropdown.src = dropUpIconPath;
+
         let description = task.querySelector('.description');
         if (description === null) return;
         description.classList.remove('hidden');
@@ -1097,6 +1208,9 @@ export default class UI {
     hideDescription(task) {
         task.classList.remove('task-expanded');
         task.classList.add('task');
+
+        let dropdown = task.querySelector('.dropdown img');
+        dropdown.src = dropdownIconPath;
 
         let description = task.querySelector('.description');
         if (description === null) return;
@@ -1115,9 +1229,16 @@ export default class UI {
         ? checkbox.closest('.task').querySelector('.title').textContent 
         : checkbox.closest('.task-expanded').querySelector('.title').textContent;
 
-        if (project.getTodo(task).getChecked()) return;
+        // if (project.getTodo(task).getChecked()) return;
         // task set checked
         project.getTodo(task).setChecked();
+
+        // uncheck if already checked
+        if (project.getTodo(task).getChecked()) {
+            checkbox.replaceChildren();
+            return;
+        }
+
         // set checked DOM
         let check = document.createElement('img');
         check.src = checkIconPath;
@@ -1126,29 +1247,77 @@ export default class UI {
         // check checkbox
         checkbox.append(check);
     }
+
+    // keydown listeners
+    addKeyEventListeners() {
+        document.addEventListener('keydown', (e) => {
+            let key = e.key;
+            let modalOverlay = document.querySelector('.modal-overlay');
+
+            let modals = document.querySelectorAll('dialog');
+            let openModal;
+            for (let modal of modals) {
+                if (modal.open) openModal = modal;
+            }
+
+            // escape to close form
+            if (key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
+                e.preventDefault();
+
+                let formType = openModal.querySelector('form');
+                
+                if (formType.classList.contains('account-form')) {
+                    this.hideAccount();
+                } else if (formType.classList.contains('project-form')) {
+                    this.hideProjectData();
+                } else if (formType.classList.contains('task-form')) {
+                    this.hideTaskData();
+                }
+            }
+
+            // enter to submit form
+            if (key === 'Enter' && !modalOverlay.classList.contains('hidden')) {
+                let formType = openModal.querySelector('form');
+                
+                if (formType.classList.contains('account-form')) {
+                    this.submitAccount(e);
+                } else if (formType.classList.contains('project-form')) {
+                    this.submitProject(e);
+                } else if (formType.classList.contains('task-form')) {
+                    this.submitTask(e);
+                }
+            }
+        });
+    }
+
 }
 
-/* TODO: 
+/* TODO:
 - implement all project
-- delete/edit project
-- safeguard against empty input
-- icon selection/library or web url input
 - inbox functionality (daily tasks)
+- icon selection/library or web url input
 - date fn
-- dropdown arrow switching
-- project mouse pointer clicking
-- add accessibility for keypress
-- display description on load for placeholder task expanded
-- activate all event listeners
-- create modal function
-- refactor add project/event listener
-- refactor event delegation (one event listener, bubbling)
-- use .toggle and .matches methods
 - STORAGE
 - strictly refactor SOLID (delegate functionality to only respective module)
 */
 
-/* Possible features
+/* Possible features/fixes
 - color/theme switching
 - set checkmark to toggle
+- fetch tasks with the same title
+- create modal function
+*/
+
+/* DONE
+- project mouse pointer appearing
+- edit project
+- safeguard against empty input
+- display description on load for placeholder task expanded
+- dropdown arrow switching
+- add accessibility for keypress
+- activate all event listeners
+- refactor add project/event listener
+- fix delete permanent/default projects ('inbox', 'today', 'week', 'month') + bolded bug
+- refactor event delegation (one event listener, bubbling)
+- use .toggle and .matches methods
 */
