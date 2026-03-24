@@ -75,6 +75,9 @@ import Todo from './todo';
 import Project from './project';
 import List from './list';
 
+// import external libraries
+import { compareAsc, format, isToday, isThisWeek, isThisMonth, isBefore} from "date-fns";
+
 export default class UI {
     constructor() {
         // initialize todo list
@@ -102,6 +105,9 @@ export default class UI {
 
         // add placeholder tasks
         this.createPlaceholders();
+
+        // add time sensitive tasks
+        this.addPendingTasks();
     }
 
     // LOADING CONTENT
@@ -320,7 +326,14 @@ export default class UI {
 
         let date = document.createElement('p');
         date.classList.add('date')
-        date.textContent = setDate;
+        // format date
+        let year = setDate.slice(0, 4);
+        let month = setDate.slice(5, 7) - 1; // correct + 1 to month
+        let day = setDate.slice(8);
+
+        let dateFormatted = format(new Date(year, month, day), "M/d/yy");
+
+        date.textContent = dateFormatted;
 
         let checkbox = document.createElement('div');
         checkbox.classList.add('checkbox');
@@ -347,16 +360,16 @@ export default class UI {
 
     createPlaceholders() {
         // task
-        let task = this.createTask('G', 'PAY BILLS', '2026-03-12', '');
+        let task = this.createTask('G', 'PAY BILLS', '2026-03-19', '');
 
         // task expanded
-        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.')
+        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2026-03-19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.')
         taskExpanded.classList.remove('task');
         taskExpanded.classList.add('task');
 
         // make placeholder todos
-        let todo = new Todo('G', 'PAY BILLS', '2026-03-12', '');
-        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2026-03-12', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.');
+        let todo = new Todo('G', 'PAY BILLS', '2026-03-19', '');
+        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2026-03-19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.');
 
         // add tasks to inbox
         let currentProject = document.querySelector('.bolded');
@@ -416,6 +429,7 @@ export default class UI {
         let accountForm = document.querySelector('.account-form');
         if (accountForm) {
             this.unhideModal(accountForm);
+            return;
         }
 
         // construct modal
@@ -575,14 +589,6 @@ export default class UI {
 
 
     addProjectEventListeners() {
-        // TODO: add functionality to fetch current project (date = today, week, month), inbox
-        // get all projects
-
-        // get all todos of each project
-
-        // if date is before or of today, add to inbox
-
-
         // Switch project
         let projects = document.querySelectorAll('.sidebar li');
         projects.forEach((project) => {
@@ -660,6 +666,7 @@ export default class UI {
         let projectForm = document.querySelector('.project-form');
         if (projectForm) {
             this.unhideModal(projectForm);
+            return;
         }
 
         // construct modal
@@ -727,11 +734,11 @@ export default class UI {
         let icon = document.createElement('label');
         icon.htmlFor = 'icon';
         let iconInput = document.createElement('input');
-        iconInput.type = 'text'; // TODO: change to file input, handle in project.js
+        iconInput.type = 'url'; // TODO: change to file input, handle in project.js
         iconInput.name = 'icon';
         iconInput.id = 'icon';
         let iconText = document.createElement('span');
-        iconText.textContent = 'Icon';
+        iconText.textContent = 'Icon URL';
 
         iconFormControl.append(icon, iconInput, iconText);
 
@@ -742,6 +749,7 @@ export default class UI {
         submit.textContent = 'Submit';
 
         submit.addEventListener('click', (e) => {
+            e.preventDefault();
             this.submitProject(e);
         });
 
@@ -807,7 +815,7 @@ export default class UI {
         link.textContent = title.toUpperCase();
         link.href = '#';
 
-        projectContainer.append(image, link);
+        projectContainer.append(img, link);
         li.append(projectContainer);
         projects.append(li);
     }
@@ -920,14 +928,17 @@ export default class UI {
             if (clickTarget.matches('.date')) {
                 // change task date
                 let currentDate = clickTarget.textContent;
-                let newDate = prompt('New date?', currentDate);
+                let newDate = prompt('New date? (format: yyyy-MM-dd)', currentDate);
 
                 // keep same if empty input
                 if (newDate !== null && newDate.length) {
                     currentTask.setDueDate(newDate);
 
                     // update element display
-                    clickTarget.textContent = newDate;
+                    let year = newDate.slice(0, 4);
+                    let month = newDate.slice(5, 7) - 1; // correct + 1 to month
+                    let day = newDate.slice(8);
+                    clickTarget.textContent = format(new Date(year, month, day), "M/d/yy");
                 }
             }
 
@@ -957,6 +968,7 @@ export default class UI {
         let taskForm = document.querySelector('.task-form');
         if (taskForm) {
             this.unhideModal(taskForm);
+            return;
         }
 
         // create task modal
@@ -1174,6 +1186,11 @@ export default class UI {
         // add task to project
         project.addTodo(task);
 
+        // add task to all and inbox
+        let allProject = this.list.getProject('all');
+        allProject.addTodo(task);
+        this.updatePendingTasks(task);
+
         // add task DOM
         let taskList = document.querySelector('.task-list');
         
@@ -1280,23 +1297,98 @@ export default class UI {
                 let formType = openModal.querySelector('form');
                 
                 if (formType.classList.contains('account-form')) {
+                    e.preventDefault();
                     this.submitAccount(e);
                 } else if (formType.classList.contains('project-form')) {
+                    e.preventDefault();
                     this.submitProject(e);
                 } else if (formType.classList.contains('task-form')) {
+                    e.preventDefault();
                     this.submitTask(e);
                 }
             }
         });
     }
 
+    addPendingTasks() {
+        // Today, Week, Month, Inbox, All
+
+        // get all projects
+        let allProjects = this.list.getProjects();
+        // get all todos of each project
+        let allTodos = [];
+        for (let project of allProjects) {
+            allTodos.push(...project.getTodos());
+        }
+
+        // order todos by date
+        this.sortTasksAsc(allTodos);
+        // add all todos to all project
+        let allProject = this.list.getProject('all');
+        allProject.setTodos(allTodos);
+
+        // add todos to today/week/month and inbox
+        for (let todo of allTodos) {
+            this.updatePendingTasks(todo);
+        }
+    }
+
+    updatePendingTasks(todo) {
+        // initialize default projects (inbox, today, week, month)
+        let inboxProject = this.list.getProject('inbox');
+        let todayProject = this.list.getProject('today');
+        let weekProject = this.list.getProject('week');
+        let monthProject = this.list.getProject('month');
+
+        // get/format date
+        let year = todo.getDueDate().slice(0, 4);
+        let month = todo.getDueDate().slice(5, 7) - 1;
+        let day = todo.getDueDate().slice(8);
+        // let dateFormatted = format(new Date(year, month, day), "M/d/yy");
+        let currentDate = new Date(year, month, day);
+        
+        // add tasks before or on today's date to inbox
+        if ((isToday(currentDate) || isBefore(currentDate, new Date())) 
+            && !inboxProject.containsTodo(todo)) {
+            inboxProject.addTodo(todo);
+            // resort todos by date ascending
+            this.sortTasksAsc(inboxProject.getTodos());
+        }
+        // add to day/week/month if matches
+        if (isToday(currentDate)) {
+            // today
+            todayProject.addTodo(todo);
+            this.sortTasksAsc(todayProject.getTodos());
+
+            // week
+            if (isThisWeek(currentDate)) weekProject.addTodo(todo);
+            this.sortTasksAsc(weekProject.getTodos());
+
+            // month
+            if (isThisMonth(currentDate)) monthProject.addTodo(todo);
+            this.sortTasksAsc(monthProject.getTodos());
+        } else if (isThisWeek(currentDate)) {
+            // week
+            weekProject.addTodo(todo);
+            this.sortTasksAsc(weekProject.getTodos());
+            // month
+            if (isThisMonth(currentDate)) monthProject.addTodo(todo);
+            this.sortTasksAsc(monthProject.getTodos());
+        } else if (isThisMonth(currentDate)) {
+            // month
+            monthProject.addTodo(todo);
+            this.sortTasksAsc(monthProject.getTodos());
+        }
+    }
+
+    sortTasksAsc(todos) {
+        todos.sort((a, b) => a.dateFormatted() - b.dateFormatted());
+    }
 }
 
 /* TODO:
 - implement all project
 - inbox functionality (daily tasks)
-- icon selection/library or web url input
-- date fn
 - STORAGE
 - strictly refactor SOLID (delegate functionality to only respective module)
 */
@@ -1306,6 +1398,7 @@ export default class UI {
 - set checkmark to toggle
 - fetch tasks with the same title
 - create modal function
+- icon selection/library
 */
 
 /* DONE
@@ -1320,4 +1413,7 @@ export default class UI {
 - fix delete permanent/default projects ('inbox', 'today', 'week', 'month') + bolded bug
 - refactor event delegation (one event listener, bubbling)
 - use .toggle and .matches methods
+- web url icon input
+- date fn
+
 */

@@ -83,6 +83,13 @@ export default class Todo {
     }
 
     dateFormatted() {
-        return;
+        // get/format date
+        let year = this.getDueDate().slice(0, 4);
+        let month = this.getDueDate().slice(5, 7) - 1;
+        let day = this.getDueDate().slice(8);
+        // let dateFormatted = format(new Date(year, month, day), "M/d/yy");
+        let currentDate = new Date(year, month, day);
+        
+        return currentDate;
     }
 }

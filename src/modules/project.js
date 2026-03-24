@@ -65,9 +65,9 @@ export default class Project {
         }
     }
 
-    containsTodo(title) {
-        for (const todo in this.todos) {
-            if (todo.title === title) {
+    containsTodo(task) {
+        for (let todo in this.todos) {
+            if (todo.title === task.title) {
                 return true;
             }
         }
