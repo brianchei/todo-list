@@ -1183,12 +1183,14 @@ export default class UI {
         // get current project
         let currentProject = document.querySelector('.bolded'); // or .active or .current ...
         let project = this.list.getProject(currentProject.id);
-        // add task to project
+
+        // add task to project (inbox)
         project.addTodo(task);
 
-        // add task to all and inbox
+        // add task to all
         let allProject = this.list.getProject('all');
         allProject.addTodo(task);
+
         this.updatePendingTasks(task);
 
         // add task DOM
@@ -1197,6 +1199,9 @@ export default class UI {
         let toAdd = this.createTask(priority, title, date, description);
 
         taskList.appendChild(toAdd);
+        
+        // refresh page
+        this.displayPage(currentProject.id);
     }
     deleteTask(e) {
         let clickTarget = e.target;
@@ -1327,10 +1332,12 @@ export default class UI {
         let allProject = this.list.getProject('all');
         allProject.setTodos(allTodos);
 
+        /*
         // add todos to today/week/month and inbox
         for (let todo of allTodos) {
             this.updatePendingTasks(todo);
         }
+        */
     }
 
     updatePendingTasks(todo) {
@@ -1355,26 +1362,26 @@ export default class UI {
             this.sortTasksAsc(inboxProject.getTodos());
         }
         // add to day/week/month if matches
-        if (isToday(currentDate)) {
+        if (isToday(currentDate) && todayProject.containsTodo(todo)) {
             // today
             todayProject.addTodo(todo);
             this.sortTasksAsc(todayProject.getTodos());
 
             // week
-            if (isThisWeek(currentDate)) weekProject.addTodo(todo);
+            if (isThisWeek(currentDate) && todayProject.containsTodo(todo)) weekProject.addTodo(todo);
             this.sortTasksAsc(weekProject.getTodos());
 
             // month
-            if (isThisMonth(currentDate)) monthProject.addTodo(todo);
+            if (isThisMonth(currentDate) && todayProject.containsTodo(todo)) monthProject.addTodo(todo);
             this.sortTasksAsc(monthProject.getTodos());
-        } else if (isThisWeek(currentDate)) {
+        } else if (isThisWeek(currentDate) && todayProject.containsTodo(todo)) {
             // week
             weekProject.addTodo(todo);
             this.sortTasksAsc(weekProject.getTodos());
             // month
-            if (isThisMonth(currentDate)) monthProject.addTodo(todo);
+            if (isThisMonth(currentDate) && todayProject.containsTodo(todo)) monthProject.addTodo(todo);
             this.sortTasksAsc(monthProject.getTodos());
-        } else if (isThisMonth(currentDate)) {
+        } else if (isThisMonth(currentDate) && todayProject.containsTodo(todo)) {
             // month
             monthProject.addTodo(todo);
             this.sortTasksAsc(monthProject.getTodos());
@@ -1391,6 +1398,7 @@ export default class UI {
 - inbox functionality (daily tasks)
 - STORAGE
 - strictly refactor SOLID (delegate functionality to only respective module)
+- deletes/edits working across all projects for the same task
 */
 
 /* Possible features/fixes
@@ -1415,5 +1423,7 @@ export default class UI {
 - use .toggle and .matches methods
 - web url icon input
 - date fn
+- fix double adds when added to current project
+- add to all project and refresh all tasks when new one added (with date sorted)
 
 */
