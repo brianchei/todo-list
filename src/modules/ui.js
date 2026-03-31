@@ -74,15 +74,27 @@ import checkIconPath from '../images/check_24dp_000000_FILL0_wght400_GRAD0_opsz2
 import Todo from './todo';
 import Project from './project';
 import List from './list';
+import Storage from './storage';
 
 // import external libraries
 import { compareAsc, format, isToday, isThisWeek, isThisMonth, isBefore} from "date-fns";
 
 export default class UI {
     constructor() {
-        // initialize todo list
-        this.list = new List('current', []);
-        
+        // initialize storage
+        this.storage = new Storage();
+
+        // try to load saved data
+        const savedData = this.storage.load();
+
+        if (savedData && savedData.list) {
+            // restore from saved data
+            this.list = savedData.list;
+        } else {
+            // initialize new todo list
+            this.list = new List('current', []);
+        }
+
         // build homepage
         let page = document.createElement('div');
         page.classList.add('page');
@@ -90,7 +102,7 @@ export default class UI {
 
         let content = document.createElement('div');
         content.classList.add('content');
-        
+
         page.append(this.createHeader());
         content.append(this.createSidebar(), this.createMain());
         page.append(content);
@@ -103,8 +115,10 @@ export default class UI {
         this.addTaskEventListeners();
         this.addKeyEventListeners();
 
-        // add placeholder tasks
-        this.createPlaceholders();
+        // add placeholder tasks (only if no saved data)
+        if (!savedData) {
+            this.createPlaceholders();
+        }
 
         // add time sensitive tasks
         this.addPendingTasks();
@@ -208,7 +222,7 @@ export default class UI {
 
         for (let projectName of defaultProjects) {
             // add project to list
-            let toAdd = new Project(projectName, currentImagePaths[currentProjects.indexOf(projectName)], []);
+            let toAdd = new Project(projectName, defaultImagePaths[defaultProjects.indexOf(projectName)], []);
             this.list.addProject(toAdd);
 
             // add project to DOM
@@ -326,12 +340,8 @@ export default class UI {
 
         let date = document.createElement('p');
         date.classList.add('date')
-        // format date
-        let year = setDate.slice(0, 4);
-        let month = setDate.slice(5, 7) - 1; // correct + 1 to month
-        let day = setDate.slice(8);
-
-        let dateFormatted = format(new Date(year, month, day), "M/d/yy");
+        // format date using date-fns
+        let dateFormatted = format(new Date(setDate), "M/d/yy");
 
         date.textContent = dateFormatted;
 
@@ -373,7 +383,7 @@ export default class UI {
 
         // add tasks to inbox
         let currentProject = document.querySelector('.bolded');
-        let project = this.list.getProject(currentProject.id);
+        let project = this.list.getProject(currentProject ? currentProject.id : 'inbox');
 
         // add todo to project
         project.addTodo(todo);
@@ -557,7 +567,8 @@ export default class UI {
         // reset form
         form.reset();
 
-        // TODO: load task/projects/user data
+        // save user data
+        this.storage.save(this.list, { username });
     }
 
     displayPage(project) {
@@ -818,22 +829,42 @@ export default class UI {
         projectContainer.append(img, link);
         li.append(projectContainer);
         projects.append(li);
+
+        // save to storage
+        this.storage.save(this.list);
     }
     deleteProject(project) {
+        let wasCurrentProject = project.classList.contains('bolded');
+        let projectId = project.id;
+
         // remove project from list
-        this.list.deleteProject(project.id);
+        this.list.deleteProject(projectId);
 
         // remove project from DOM
         project.parentElement.remove();
 
-        // set inbox to current (bolded)
-        let inbox = document.querySelector('#inbox');
-        inbox.classList.add('bolded');
+        // if deleted project was current view, switch to inbox and refresh
+        if (wasCurrentProject) {
+            // remove bolded from all projects
+            document.querySelectorAll('.sidebar li').forEach(li => {
+                li.querySelector('div').classList.remove('bolded');
+            });
+            // set inbox to current (bolded)
+            let inbox = document.querySelector('#inbox');
+            if (inbox) {
+                inbox.classList.add('bolded');
+                // refresh task list to show inbox tasks
+                this.displayPage('inbox');
+            }
+        }
+
+        // save to storage
+        this.storage.save(this.list);
     }
 
     editProject(title, newTitle, image) {
         this.list.getProject(title).setTitle(newTitle);
-        
+
         let project = document.querySelector('.' + title);
         project.classList.remove(title);
         project.classList.add(newTitle);
@@ -843,6 +874,9 @@ export default class UI {
         img.alt = newTitle;
         let link = project.querySelector('a');
         link.textContent = newTitle.toUpperCase();
+
+        // save to storage
+        this.storage.save(this.list);
     }
 
 
@@ -858,7 +892,8 @@ export default class UI {
         addTask.addEventListener('click', () => {
             this.getTaskData();
         });
-
+        
+        // Other listeners (priority, title, dropdown, delete, date, check)
         taskContainer.addEventListener('click', (e) => {
             let clickTarget = e.target;
 
@@ -891,6 +926,8 @@ export default class UI {
                 clickTarget.classList.remove('G', 'Y', 'R');
                 clickTarget.classList.add(currentTask.getPriority());
                 clickTarget.textContent = currentTask.getPriority();
+                // save to storage
+                this.storage.save(this.list);
             }
 
             // title
@@ -903,6 +940,9 @@ export default class UI {
 
                     // update element display
                     clickTarget.textContent = newTitle;
+
+                    // save to storage
+                    this.storage.save(this.list);
                 }
             }
             
@@ -917,11 +957,14 @@ export default class UI {
 
             // delete
             if (clickTarget.matches('.delete') || clickTarget.matches('.delete img')) {
-                // remove from project
-                project.deleteTodo(currentTaskTitle);
+                // remove from all projects (inbox, today, week, month, all, and current)
+                this.removeTaskFromAllProjects(currentTaskTitle);
 
                 // remove from DOM
                 currentTaskElement.remove();
+
+                // save to storage
+                this.storage.save(this.list);
             }
 
             // date
@@ -934,17 +977,19 @@ export default class UI {
                 if (newDate !== null && newDate.length) {
                     currentTask.setDueDate(newDate);
 
-                    // update element display
-                    let year = newDate.slice(0, 4);
-                    let month = newDate.slice(5, 7) - 1; // correct + 1 to month
-                    let day = newDate.slice(8);
-                    clickTarget.textContent = format(new Date(year, month, day), "M/d/yy");
+                    // update element display using date-fns
+                    clickTarget.textContent = format(new Date(newDate), "M/d/yy");
+
+                    // save to storage
+                    this.storage.save(this.list);
                 }
             }
 
             // check
             if ((clickTarget.matches('.checkbox') || clickTarget.matches('.checkbox img'))) {
                 this.checkTask(e);
+                // save to storage
+                this.storage.save(this.list);
             }
         });
 
@@ -1150,9 +1195,9 @@ export default class UI {
         let description = formData.get('description');
 
         // display message if input/s empty
-        if (!priority || title.length === 0) {
+        if (!priority || title.length === 0 || !date) {
             e.preventDefault();
-            alert('Please fill out priority & title');
+            alert('Please fill out priority, title & date');
             return;
         }
 
@@ -1184,36 +1229,56 @@ export default class UI {
         let currentProject = document.querySelector('.bolded'); // or .active or .current ...
         let project = this.list.getProject(currentProject.id);
 
-        // add task to project (inbox)
-        project.addTodo(task);
+        // add task to current project if not already present
+        if (!project.containsTodo(task)) {
+            project.addTodo(task);
+        }
 
-        // add task to all
-        let allProject = this.list.getProject('all');
-        allProject.addTodo(task);
-
+        // updatePendingTasks handles adding to inbox/today/week/month/all
         this.updatePendingTasks(task);
 
         // add task DOM
         let taskList = document.querySelector('.task-list');
-        
+
         let toAdd = this.createTask(priority, title, date, description);
 
         taskList.appendChild(toAdd);
-        
+
         // refresh page
         this.displayPage(currentProject.id);
+
+        // save to storage
+        this.storage.save(this.list);
     }
     deleteTask(e) {
         let clickTarget = e.target;
         let task = clickTarget.parentElement.querySelector('.title').textContent;
         let toDelete = clickTarget.parentElement.parentElement;
-        // get current project
-        let currentProject = document.querySelector('.bolded');
-        let project = this.list.getProject(currentProject.id);
-        // delete task from project
-        project.deleteTodo(task);
+        // remove from all projects
+        this.removeTaskFromAllProjects(task);
         // delete from DOM
         toDelete.remove();
+        // save to storage
+        this.storage.save(this.list);
+    }
+
+    /**
+     * Remove a task from ALL projects (inbox, today, week, month, all, and custom)
+     * @param {string} taskTitle - Title of task to remove
+     */
+    removeTaskFromAllProjects(taskTitle) {
+        const projectNames = ['inbox', 'today', 'week', 'month', 'all'];
+        // Also remove from all custom projects
+        this.list.getProjects().forEach(project => {
+            project.deleteTodo(taskTitle);
+        });
+        // Also remove from system projects
+        projectNames.forEach(name => {
+            const project = this.list.getProject(name);
+            if (project) {
+                project.deleteTodo(taskTitle);
+            }
+        });
     }
 
     showDescription(task) {
@@ -1320,10 +1385,13 @@ export default class UI {
 
         // get all projects
         let allProjects = this.list.getProjects();
-        // get all todos of each project
+        // get all todos from custom projects only (exclude system projects to avoid duplicates)
         let allTodos = [];
+        const systemProjects = ['inbox', 'today', 'week', 'month', 'all'];
         for (let project of allProjects) {
-            allTodos.push(...project.getTodos());
+            if (!systemProjects.includes(project.getTitle())) {
+                allTodos.push(...project.getTodos());
+            }
         }
 
         // order todos by date
@@ -1332,59 +1400,59 @@ export default class UI {
         let allProject = this.list.getProject('all');
         allProject.setTodos(allTodos);
 
-        /*
         // add todos to today/week/month and inbox
         for (let todo of allTodos) {
             this.updatePendingTasks(todo);
         }
-        */
     }
 
     updatePendingTasks(todo) {
-        // initialize default projects (inbox, today, week, month)
+        // initialize default projects (inbox, today, week, month, all)
         let inboxProject = this.list.getProject('inbox');
         let todayProject = this.list.getProject('today');
         let weekProject = this.list.getProject('week');
         let monthProject = this.list.getProject('month');
+        let allProject = this.list.getProject('all');
 
-        // get/format date
-        let year = todo.getDueDate().slice(0, 4);
-        let month = todo.getDueDate().slice(5, 7) - 1;
-        let day = todo.getDueDate().slice(8);
-        // let dateFormatted = format(new Date(year, month, day), "M/d/yy");
-        let currentDate = new Date(year, month, day);
-        
+        // get/format date using date-fns
+        let currentDate = new Date(todo.getDueDate());
+
+        // add to all project first (if not already present)
+        if (!allProject.containsTodo(todo)) {
+            allProject.addTodo(todo);
+        }
+
         // add tasks before or on today's date to inbox
-        if ((isToday(currentDate) || isBefore(currentDate, new Date())) 
+        if ((isToday(currentDate) || isBefore(currentDate, new Date()))
             && !inboxProject.containsTodo(todo)) {
             inboxProject.addTodo(todo);
             // resort todos by date ascending
             this.sortTasksAsc(inboxProject.getTodos());
         }
         // add to day/week/month if matches
-        if (isToday(currentDate) && todayProject.containsTodo(todo)) {
+        if (isToday(currentDate) && !todayProject.containsTodo(todo)) {
             // today
             todayProject.addTodo(todo);
             this.sortTasksAsc(todayProject.getTodos());
-
-            // week
-            if (isThisWeek(currentDate) && todayProject.containsTodo(todo)) weekProject.addTodo(todo);
-            this.sortTasksAsc(weekProject.getTodos());
-
-            // month
-            if (isThisMonth(currentDate) && todayProject.containsTodo(todo)) monthProject.addTodo(todo);
-            this.sortTasksAsc(monthProject.getTodos());
-        } else if (isThisWeek(currentDate) && todayProject.containsTodo(todo)) {
-            // week
+        }
+        // week (for today or other days this week)
+        if (isThisWeek(currentDate) && !weekProject.containsTodo(todo)) {
             weekProject.addTodo(todo);
             this.sortTasksAsc(weekProject.getTodos());
-            // month
-            if (isThisMonth(currentDate) && todayProject.containsTodo(todo)) monthProject.addTodo(todo);
-            this.sortTasksAsc(monthProject.getTodos());
-        } else if (isThisMonth(currentDate) && todayProject.containsTodo(todo)) {
-            // month
+        }
+        // month (for today, this week, or other days this month)
+        if (isThisMonth(currentDate) && !monthProject.containsTodo(todo)) {
             monthProject.addTodo(todo);
             this.sortTasksAsc(monthProject.getTodos());
+        }
+
+        // Refresh the current view if it's one of the date-based projects
+        let currentProject = document.querySelector('.bolded');
+        if (currentProject) {
+            const currentProjectId = currentProject.id;
+            if (['inbox', 'today', 'week', 'month', 'all'].includes(currentProjectId)) {
+                this.displayPage(currentProjectId);
+            }
         }
     }
 
@@ -1394,19 +1462,16 @@ export default class UI {
 }
 
 /* TODO:
-- implement all project
-- inbox functionality (daily tasks)
-- STORAGE
-- strictly refactor SOLID (delegate functionality to only respective module)
-- deletes/edits working across all projects for the same task
 */
 
 /* Possible features/fixes
 - color/theme switching
-- set checkmark to toggle
+- set check mark to toggle
 - fetch tasks with the same title
 - create modal function
 - icon selection/library
+- deletes/edits working across all projects for the same task
+- strictly refactor SOLID (delegate functionality to only respective module)
 */
 
 /* DONE
@@ -1425,5 +1490,7 @@ export default class UI {
 - date fn
 - fix double adds when added to current project
 - add to all project and refresh all tasks when new one added (with date sorted)
-
+- implement all project
+- inbox functionality (daily tasks)
+- STORAGE
 */

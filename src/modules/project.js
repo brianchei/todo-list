@@ -67,7 +67,9 @@ export default class Project {
 
     containsTodo(task) {
         for (let todo of this.todos) {
-            if (todo.title === task.title) {
+            // Compare by title AND dueDate to avoid false duplicates
+            // (same title can exist on different dates)
+            if (todo.title === task.title && todo.dueDate === task.dueDate) {
                 return true;
             }
         }
