@@ -48,7 +48,12 @@ export default class Todo {
     }
 
     dateFormatted() {
-        // Parse ISO date string and return Date object
-        return new Date(this.getDueDate());
+        if (!this.dueDate) return new Date();
+        const parts = this.dueDate.split('-');
+        if (parts.length === 3) {
+            // new Date(year, monthIndex, day) creates date in local timezone
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+        return new Date(this.dueDate);
     }
 }

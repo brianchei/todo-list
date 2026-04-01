@@ -105,7 +105,7 @@ export default class DOMRenderer {
         let currentProjects = [SYSTEM_PROJECTS.INBOX, SYSTEM_PROJECTS.TODAY, SYSTEM_PROJECTS.WEEK, SYSTEM_PROJECTS.MONTH];
         let currentImagePaths = [inboxIconPath, todayIconPath, weekIconPath, monthIconPath];
 
-        for (let projectName of currentProjects) {            
+        for (let projectName of currentProjects) {
             let toAdd = new Project(projectName, currentImagePaths[currentProjects.indexOf(projectName)], []);
             if (!list.containsProject(projectName)) list.addProject(toAdd);
 
@@ -158,7 +158,7 @@ export default class DOMRenderer {
 
             div.append(img, link);
             li.append(div);
-            defaults.append(li);       
+            defaults.append(li);
         }
 
         sidebar.append(current, addProject, defaults);
@@ -242,7 +242,12 @@ export default class DOMRenderer {
 
         let date = document.createElement('p');
         date.classList.add('date');
-        let dateFormatted = format(new Date(setDate), "M/d/yy");
+        let localDate = new Date(setDate);
+        if (setDate && setDate.includes('-')) {
+            const parts = setDate.split('-');
+            if (parts.length === 3) localDate = new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+        let dateFormatted = format(localDate, "M/d/yy");
         date.textContent = dateFormatted;
 
         let checkbox = document.createElement('div');
@@ -316,7 +321,7 @@ export default class DOMRenderer {
     renderProjectEdit(oldTitle, newTitle, image) {
         let project = document.querySelector('#' + oldTitle);
         if (!project) return;
-        
+
         project.id = newTitle;
 
         let img = project.querySelector('img');
@@ -325,7 +330,7 @@ export default class DOMRenderer {
         let link = project.querySelector('a');
         link.textContent = newTitle.toUpperCase();
     }
-    
+
     appendTask(task) {
         let toAdd = this.createTask(task.getPriority(), task.getTitle(), task.getDueDate(), task.getDescription(), task.getChecked());
         this.dom.taskList.appendChild(toAdd);
@@ -374,7 +379,12 @@ export default class DOMRenderer {
     }
 
     updateTaskDate(dateElement, newDateStr) {
-        dateElement.textContent = format(new Date(newDateStr), "M/d/yy");
+        let localDate = new Date(newDateStr);
+        if (newDateStr && newDateStr.includes('-')) {
+            const parts = newDateStr.split('-');
+            if (parts.length === 3) localDate = new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+        dateElement.textContent = format(localDate, "M/d/yy");
     }
 
     toggleCheckbox(checkboxElement, isChecked) {
@@ -387,7 +397,7 @@ export default class DOMRenderer {
             checkboxElement.append(check);
         }
     }
-    
+
     renderCustomDeleteBtn(hoverTarget, onClickCallback) {
         let deleteButton = document.createElement('button');
         deleteButton.classList.add('delete');
@@ -396,7 +406,7 @@ export default class DOMRenderer {
         deleteIcon.alt = 'delete';
         deleteIcon.style.minWidth = '24px';
         deleteButton.append(deleteIcon);
-        
+
         deleteButton.addEventListener('click', onClickCallback);
         hoverTarget.append(deleteButton);
         return deleteButton;

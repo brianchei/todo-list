@@ -219,7 +219,7 @@ export default class UI {
         let monthProject = this.list.getProject(SYSTEM_PROJECTS.MONTH);
         let allProject = this.list.getProject(SYSTEM_PROJECTS.ALL);
 
-        let currentDate = new Date(todo.getDueDate());
+        let currentDate = todo.dateFormatted();
 
         if (allProject && !allProject.containsTodo(todo)) {
             allProject.addTodo(todo);
