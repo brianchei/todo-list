@@ -11,6 +11,7 @@ import List from './list.js';
 export default class Storage {
     constructor() {
         this.STORAGE_KEY = 'todoApp';
+        this.saveTimeout = null;
     }
 
     /**
@@ -19,6 +20,15 @@ export default class Storage {
      * @param {Object} user - Current user data (username, etc.)
      */
     save(list, user = null) {
+        if (this.saveTimeout) {
+            clearTimeout(this.saveTimeout);
+        }
+        this.saveTimeout = setTimeout(() => {
+            this._executeSave(list, user);
+        }, 300);
+    }
+
+    _executeSave(list, user) {
         try {
             const data = {
                 list: this.serializeList(list),

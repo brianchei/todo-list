@@ -1,1278 +1,188 @@
-/* Functionality
-- load/create default DOM elements/structure (header, sidebar, content)
-- methods for each interactive capability (open/close sidebar, navigate pages, account, add project, add task, delete task, open/close description, check task)
-- export methods
-*/
-
-
-/* Features
-- View all projects
-- View all todos in each project (title+due date, diff. colors for priorities)
-- Expand todo to see details
-- Delete todo
-*/
-
-
-/* Pseudocode
-CLASS UI
-    INITIALIZE DOM elements (header, sidebar, content)
-
-    DISPLAY DOM
-
-    // DOCUMENT EVENT LISTENERS
-    FUNCTION ADD event listeners (sidebar, account, page/project)
-
-    FUNCTION DISPLAY sidebar
-    FUNCTION HIDE sidebar
-
-    FUNCTION DISPLAY account
-    FUNCTION HIDE account
-
-    FUNCTION DISPLAY(page) page
-
-
-
-    // PROJECT EVENT LISTENERS
-    FUNCTION ADD event listeners (add, delete, edit/update)
-
-    FUNCTION ADD project
-    FUNCTION DELETE project
-
-    FUNCTION EDIT/UPDATE project
-
-    // TASK EVENT LISTENERS
-    FUNCTION ADD event listeners (add, delete, expand, edit/update, check)
-
-    FUNCTION ADD task
-    FUNCTION DELETE task
-
-    FUNCTION SHOW description
-    FUNCTION HIDE description
-
-    FUNCTION CHECK task
-*/
-
-// import images
-import bannerPath from '../images/henrique-ferreira-QjOiTg459jI-unsplash.jpg'
-import menuIconPath from '../images/menu_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import accountIconPath from '../images/account_circle_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import inboxIconPath from '../images/inbox_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import todayIconPath from '../images/calendar_view_day_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import weekIconPath from '../images/calendar_view_week_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import monthIconPath from '../images/calendar_view_month_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import allIconPath from '../images/overview_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import schoolIconPath from '../images/school_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import workIconPath from '../images/work_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import hobbiesIconPath from '../images/sports_basketball_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import faithIconPath from '../images/church_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import dropdownIconPath from '../images/arrow_drop_down_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import dropUpIconPath from '../images/arrow_drop_up_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import deleteIconPath from '../images/delete_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-import checkIconPath from '../images/check_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg';
-
 // import classes
-import Todo from './todo';
-import Project from './project';
-import List from './list';
-import Storage from './storage';
+import Todo from './todo.js';
+import Project from './project.js';
+import List from './list.js';
+import Storage from './storage.js';
 
-// import external libraries
-import { compareAsc, format, isToday, isThisWeek, isThisMonth, isBefore} from "date-fns";
+import DOMRenderer from './domRenderer.js';
+import ModalManager from './modalManager.js';
+import EventManager from './eventManager.js';
+
+import { isToday, isThisWeek, isThisMonth, isBefore } from "date-fns";
+import { SYSTEM_PROJECTS } from './constants.js';
 
 export default class UI {
     constructor() {
-        // initialize storage
         this.storage = new Storage();
-
-        // try to load saved data
         const savedData = this.storage.load();
 
         if (savedData && savedData.list) {
-            // restore from saved data
             this.list = savedData.list;
         } else {
-            // initialize new todo list
             this.list = new List('current', []);
         }
 
-        // build homepage
-        let page = document.createElement('div');
-        page.classList.add('page');
-        document.body.append(page);
+        this.renderer = new DOMRenderer();
+        this.renderer.initPage(this.list);
 
-        let content = document.createElement('div');
-        content.classList.add('content');
+        this.modalManager = new ModalManager();
+        this.eventManager = new EventManager(this);
+        this.eventManager.init();
 
-        page.append(this.createHeader());
-        content.append(this.createSidebar(), this.createMain());
-        page.append(content);
-
-        // this.displayAccount();
-
-        // attach event listeners
-        this.addPageEventListeners();
-        this.addProjectEventListeners();
-        this.addTaskEventListeners();
-        this.addKeyEventListeners();
-
-        // add placeholder tasks (only if no saved data)
         if (!savedData) {
             this.createPlaceholders();
         }
 
-        // add time sensitive tasks
         this.addPendingTasks();
-    }
 
-    // LOADING CONTENT
-
-    // CREATING/DELETING CONTENT
-
-    // EVENT LISTENERS
-
-    createHeader() {
-        let header = document.createElement('header');
-
-        let banner = document.createElement('img');
-        banner.classList.add('banner');
-        banner.src = bannerPath;
-        banner.alt = banner;
-
-        let menu = document.createElement('button');
-        menu.classList.add('menu');
-
-        let menuIcon = document.createElement('img');
-        menuIcon.src = menuIconPath;
-        menuIcon.alt = 'menu';
-        menuIcon.width = '32';
-
-        menu.appendChild(menuIcon);
-
-        let heading = document.createElement('h1');
-        heading.classList.add('title');
-        heading.textContent = 'LORD WILLING';
-
-        let account = document.createElement('button');
-        account.classList.add('account');
-
-        let accountIcon = document.createElement('img');
-        accountIcon.src = accountIconPath;
-        accountIcon.alt = 'account';
-        accountIcon.width = '48';
-
-        account.appendChild(accountIcon);
-
-
-        header.append(banner, menu, heading, account);
-
-        return header;
-
-    }
-
-    createSidebar() {
-        let sidebar = document.createElement('div');
-        sidebar.classList.add('sidebar');
-
-        // current projects
-        let current = document.createElement('ul');
-        current.classList.add('current');
-
-        let currentProjects = ['inbox', 'today', 'week', 'month'];
-        let currentImagePaths = [inboxIconPath, todayIconPath, weekIconPath, monthIconPath];
-
-        for (let projectName of currentProjects) {            
-            // add project to list
-            let toAdd = new Project(projectName, currentImagePaths[currentProjects.indexOf(projectName)], []);
-            this.list.addProject(toAdd);
-
-            // add project to DOM
-            let li = document.createElement('li');
-
-            let div = document.createElement('div');
-            div.id = projectName;
-
-            let img = document.createElement('img');
-            img.src = currentImagePaths[currentProjects.indexOf(projectName)];
-            img.width = '32';
-
-            let link = document.createElement('a');
-            link.textContent = projectName.toUpperCase();
-            link.href = '#';
-
-            div.append(img, link);
-            li.append(div);
-            current.append(li);
+        // Initial render: default to inbox
+        let inbox = document.querySelector('#' + SYSTEM_PROJECTS.INBOX);
+        if (inbox) {
+            inbox.classList.add('bolded');
+            this.displayPage(SYSTEM_PROJECTS.INBOX);
         }
-
-        // add project
-        let addProject = document.createElement('div');
-        addProject.classList.add('add-project');
-        addProject.textContent = 'PROJECTS';
-        let addProjectButton = document.createElement('button');
-        addProjectButton.textContent = '+';
-
-        addProject.append(addProjectButton);
-
-        // default projects
-        let defaults = document.createElement('ul');
-        defaults.classList.add('projects');
-
-        let defaultProjects = ['all', 'school', 'work', 'hobbies', 'faith'];
-        let defaultImagePaths = [allIconPath, schoolIconPath, workIconPath, hobbiesIconPath, faithIconPath];
-
-        for (let projectName of defaultProjects) {
-            // add project to list
-            let toAdd = new Project(projectName, defaultImagePaths[defaultProjects.indexOf(projectName)], []);
-            this.list.addProject(toAdd);
-
-            // add project to DOM
-            let li = document.createElement('li');
-
-            let div = document.createElement('div');
-            div.id = projectName;
-
-            let img = document.createElement('img');
-            img.src = defaultImagePaths[defaultProjects.indexOf(projectName)];
-            img.width = '32';
-
-            let link = document.createElement('a');
-            link.textContent = projectName.toUpperCase();
-            link.href = '#';
-
-            div.append(img, link);
-            li.append(div);
-            defaults.append(li);       
-        }
-
-        sidebar.append(current, addProject, defaults);
-
-        return sidebar;
-    }
-
-    createMain() {
-        let main = document.createElement('div');
-        main.classList.add('main');
-
-        // task container
-        let taskContainer = document.createElement('div');
-        taskContainer.classList.add('task-container');
-
-        // container elements
-        let heading = document.createElement('h2');
-        heading.classList.add('tasks');
-        heading.textContent = 'TASKS';
-
-        let addTask = document.createElement('div');
-        addTask.classList.add('add-task');
-
-        let addTaskButton = document.createElement('button');
-        addTaskButton.textContent = '+';
-
-        let addTaskText = document.createElement('p');
-        addTaskText.textContent = 'ADD TASK';
-
-        addTask.append(addTaskButton, addTaskText);
-
-        // task list
-        let taskList = document.createElement('ul');
-        taskList.classList.add('task-list');
-
-        // build task list
-        taskContainer.append(heading, addTask, taskList);
-
-        // bible verse
-        let bibleVerse = document.createElement('div');
-        bibleVerse.classList.add('bible-verse');
-
-        let verse = document.createElement('p');
-        verse.classList.add('verse');
-        verse.textContent = 'Come now, you who say, “Today or tomorrow we will go into such and such a town and spend a year there and trade and make a profit”— yet you do not know what tomorrow will bring. What is your life? For you are a mist that appears for a little time and then vanishes. Instead you ought to say, “If the Lord wills, we will live and do this or that.';
-
-        let location = document.createElement('p');
-        location.classList.add('location');
-        location.textContent = 'James 4:13-15';
-
-        bibleVerse.append(verse, location);
-
-        // build main
-        main.append(taskContainer, bibleVerse);
-
-        return main;
-    }
-
-    // task (call function)
-    createTask(setPriority, setTitle, setDate, setDescription) {
-        let task = document.createElement('li');
-        task.classList.add('task');
-
-        // left
-        let taskLeft = document.createElement('div');
-        taskLeft.classList.add('left');
-
-        let priority = document.createElement('div');
-        priority.classList.add('priority');
-        priority.textContent = setPriority;
-        priority.classList.add(setPriority);
-
-        let title = document.createElement('p');
-        title.classList.add('title');
-        title.textContent = setTitle;
-
-        let dropdownButton = document.createElement('button');
-        dropdownButton.classList.add('dropdown');
-        let dropdownIcon = document.createElement('img');
-        dropdownIcon.src = dropdownIconPath;
-        dropdownIcon.alt = 'drop-down'
-        dropdownButton.append(dropdownIcon);
-
-        let deleteButton = document.createElement('button');
-        deleteButton.classList.add('delete');
-        let deleteIcon = document.createElement('img');
-        deleteIcon.src = deleteIconPath;
-        deleteIcon.alt = 'delete';
-        deleteButton.append(deleteIcon);
-
-        taskLeft.append(priority, title, dropdownButton, deleteButton);
-
-        // right
-        let taskRight = document.createElement('div');
-        taskRight.classList.add('right');
-
-        let date = document.createElement('p');
-        date.classList.add('date')
-        // format date using date-fns
-        let dateFormatted = format(new Date(setDate), "M/d/yy");
-
-        date.textContent = dateFormatted;
-
-        let checkbox = document.createElement('div');
-        checkbox.classList.add('checkbox');
-
-        taskRight.append(date, checkbox);
-
-        if (setDescription) {
-            // description
-            let description = document.createElement('p');
-            description.classList.add('description');
-            description.textContent = setDescription;
-
-            if (setDescription) {
-                task.append(description);
-            }
-
-            description.classList.add('hidden');
-        }
-
-        task.append(taskLeft, taskRight);
-
-        return task;
     }
 
     createPlaceholders() {
-        // task
-        let task = this.createTask('G', 'PAY BILLS', '2026-03-19', '');
-
-        // task expanded
-        let taskExpanded = this.createTask('G', 'PAY BILLS EXPANDED', '2026-03-19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.')
-        taskExpanded.classList.remove('task');
-        taskExpanded.classList.add('task');
-
-        // make placeholder todos
         let todo = new Todo('G', 'PAY BILLS', '2026-03-19', '');
-        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2026-03-19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sollicitudin elit dolor, a tincidunt mauris pellentesque a. Aliquam at justo id nisi accumsan pharetra id in massa. In quis placerat nulla. Morbi fringilla odio odio, at bibendum erat feugiat quis. Morbi rhoncus ut nunc sit amet posuere.');
+        let todoExpanded = new Todo('G', 'PAY BILLS EXPANDED', '2026-03-19', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.');
 
-        // add tasks to inbox
-        let currentProject = document.querySelector('.bolded');
-        let project = this.list.getProject(currentProject ? currentProject.id : 'inbox');
-
-        // add todo to project
-        project.addTodo(todo);
-        project.addTodo(todoExpanded);
-
-        // add placeholder todos to DOM
-        let taskList = document.querySelector('.task-list');
-        taskList.append(task, taskExpanded);
-    }
-
-    addPageEventListeners() {
-        // Sidebar/menu
-        let sidebar = document.querySelector('.sidebar');
-        let menu = document.querySelector('.menu');
-        menu.addEventListener('click', () => {
-            if (sidebar.classList.contains('hidden')) {
-                this.showSidebar();
-            } else {
-                this.hideSidebar();
-            }
-        });
-
-        // Account
-        let account = document.querySelector('.account');
-        account.addEventListener('click', () => {
-            this.displayAccount();
-        });
-    }
-
-    showSidebar() {
-        let content = document.querySelector('.content');
-        content.style.gridTemplateColumns = '2fr 8fr';
-        let sidebar = document.querySelector('.sidebar');
-        sidebar.classList.remove('hidden');
-    }
-    hideSidebar() {
-        let content = document.querySelector('.content');
-        content.style.gridTemplateColumns = '1fr';
-        let sidebar = document.querySelector('.sidebar');
-        sidebar.classList.add('hidden');
-    }
-
-    unhideModal(formType) {
-        let modalOverlay = document.querySelector('.modal-overlay');
-        modalOverlay.classList.remove('hidden');
-        let modal = formType.parentElement;
-        modal.showModal();
-        return;
-    }
-
-    displayAccount() {
-        // if account modal already exists unhide
-        let accountForm = document.querySelector('.account-form');
-        if (accountForm) {
-            this.unhideModal(accountForm);
-            return;
+        let project = this.list.getProject(SYSTEM_PROJECTS.INBOX);
+        if (project) {
+            project.addTodo(todo);
+            project.addTodo(todoExpanded);
         }
-
-        // construct modal
-        let modalOverlay = document.querySelector('.modal-overlay') ? document.querySelector('.modal-overlay') : document.createElement('div');
-        modalOverlay.classList.add('modal-overlay');
-        modalOverlay.classList.remove('hidden');
-        let modal = document.createElement('dialog');
-        modal.classList.add('modal');
-        let form = document.createElement('form');
-        form.method = 'dialog';
-        form.classList.add('account-form');
-        let formContainer = document.createElement('div');
-        formContainer.classList.add('form-container');
-
-        form.append(formContainer);
-        modal.append(form);
-        modalOverlay.append(modal);
-        
-        // form top
-        let formTop = document.createElement('div');
-        formTop.classList.add('form-top');
-        let heading = document.createElement('h1');
-        heading.textContent = 'Login';
-        let closeForm = document.createElement('button');
-        closeForm.classList.add('close-form');
-        closeForm.textContent = 'x';
-
-        closeForm.addEventListener('click', () => {
-            /*
-            let modal = document.querySelector('dialog');
-
-            // set required inputs to disabled (prevent blocked state)
-            let inputs = modal.querySelectorAll('input');
-            inputs.forEach((input) => {
-                if (input.required === true) {
-                    input.disabled = true;
-                }
-            });
-            */
-
-            this.hideAccount();
-        });
-
-        formTop.append(heading, closeForm);
-
-        // form bottom
-        let formBottom = document.createElement('div');
-        formBottom.classList.add('form-bottom');
-
-        // username
-        let usernameFormControl = document.createElement('div');
-        usernameFormControl.classList.add('form-control');
-        let username = document.createElement('label');
-        username.htmlFor = 'username';
-        let usernameInput = document.createElement('input');
-        usernameInput.type = 'text';
-        usernameInput.name = 'username';
-        usernameInput.id = 'username';
-        // usernameInput.required = true;
-        let usernameText = document.createElement('span');
-        usernameText.textContent = 'Username';
-
-        usernameFormControl.append(username, usernameInput, usernameText);
-
-        // password
-        let passwordFormControl = document.createElement('div');
-        passwordFormControl.classList.add('form-control');
-        let password = document.createElement('label');
-        password.htmlFor = 'password';
-        let passwordInput = document.createElement('input');
-        passwordInput.type = 'text';
-        passwordInput.name = 'password';
-        passwordInput.id = 'password';
-        // passwordInput.required = true;
-        let passwordText = document.createElement('span');
-        passwordText.textContent = 'Password';
-
-        passwordFormControl.append(password, passwordInput, passwordText);
-
-        // submit
-        let submit = document.createElement('button');
-        submit.classList.add('submit');
-        submit.type = 'submit';
-        submit.textContent = 'Submit';
-
-        submit.addEventListener('click', (e) => {
-            this.submitAccount(e);
-        });
-
-        formBottom.append(usernameFormControl, passwordFormControl, submit);
-
-
-        formContainer.append(formTop, formBottom);
-
-        document.body.append(modalOverlay);
-        modal.showModal();
-    }
-    hideAccount() {
-        let modal = document.querySelector('dialog');
-        let modalOverlay = document.querySelector('.modal-overlay');
-        modal.close();
-        modalOverlay.classList.add('hidden');
     }
 
-    submitAccount(e) {
-        // get data
-        let form = document.querySelector('.account-form');
-        const formData = new FormData(form);
-        let username = formData.get('username');
-        let password = formData.get('password');
-
-        // display message if input/s empty
-        if (username.length === 0 || password.length === 0) {
-            e.preventDefault();
-            alert('Please fill out username & password');
-            return;
-        };
-
-        // close form after getting data
-        let modal = document.querySelector('dialog');
-        let modalOverlay = document.querySelector('.modal-overlay');
-        modal.close();
-        modalOverlay.classList.add('hidden');
-
-        // reset form
-        form.reset();
-
-        // save user data
+    // --- Account Logic ---
+    handleAccountSubmit(username, password) {
         this.storage.save(this.list, { username });
     }
 
-    displayPage(project) {
-        // show/switch to/navigate project pages
-        let taskList = document.querySelector('.task-list');
-
-        // clear tasks
-        while (taskList.firstChild) {
-            taskList.removeChild(taskList.firstChild);
+    // --- Page Logic ---
+    displayPage(projectId) {
+        let project = this.list.getProject(projectId);
+        if (project) {
+            this.renderer.displayPage(project);
         }
+    }
 
-        // load project tasks
-        let selectedProj = this.list.getProject(project);
-        let tasks = selectedProj.getTodos();
-
-        // update DOM
-        for (let task of tasks) {
-            let toAdd = this.createTask(task.getPriority(), task.getTitle(), task.getDueDate(), task.getDescription());
-            taskList.append(toAdd);
+    // --- Project Logic ---
+    handleAddProject(title, image) {
+        if (!this.list.containsProject(title)) {
+            let toAdd = new Project(title, image, []);
+            this.list.addProject(toAdd);
+            this.renderer.renderNewProject(title, image);
+            this.storage.save(this.list);
+        } else {
+            alert('Project already exists!');
         }
-
-        // update current project
-        let bolded = document.querySelector('.bolded');
-        bolded.classList.remove('bolded');
-
-        let currentProject = document.querySelector('#' + selectedProj.getTitle());
-        currentProject.classList.add('bolded');
     }
 
-
-    addProjectEventListeners() {
-        // Switch project
-        let projects = document.querySelectorAll('.sidebar li');
-        projects.forEach((project) => {
-            project.querySelector('a').addEventListener('click', (e) => {
-                let clickTarget = e.target;
-                let currentProject = clickTarget.parentElement.id;
-                this.displayPage(currentProject);
-            });
-        })
-
-        // Add project
-        let addProject = document.querySelector('.add-project > button');
-        addProject.addEventListener('click', () => {
-            this.getProjectData();
-        });
-
-        // Delete project
-        let pageProjects = document.querySelectorAll('.sidebar li div');
-        let permanentProjects = ['inbox', 'today', 'week', 'month'];
-        pageProjects.forEach((project) => {
-            if (!project.querySelector('.delete') && !permanentProjects.includes(project.id)) {
-                project.addEventListener('mouseenter', (e) => {
-                    // create delete button
-                    let deleteButton = document.createElement('button');
-                    deleteButton.classList.add('delete');
-                    let deleteIcon = document.createElement('img');
-                    deleteIcon.src = deleteIconPath;
-                    deleteIcon.alt = 'delete';
-                    deleteIcon.style.minWidth = '24px';
-                    deleteButton.append(deleteIcon);
-                                        
-                    // delete functionality
-                    deleteButton.addEventListener('click', () => {
-                        this.deleteProject(project);
-                    });
-
-                    // append to DOM
-                    project.append(deleteButton);
-                });
-
-                project.addEventListener('mouseleave', () => {
-                    let deleteButton = project.querySelector('.delete');
-                    deleteButton.remove();
-                });
+    handleEditProject(oldTitle, newTitle) {
+        if (this.list.containsProject(oldTitle)) {
+            this.list.getProject(oldTitle).setTitle(newTitle);
+            this.renderer.renderProjectEdit(oldTitle, newTitle);
+            this.storage.save(this.list);
         }
-        });
-
-        // Edit project
-        let projectIcons = document.querySelectorAll('li div img');
-        projectIcons.forEach((projectIcon) => {
-            projectIcon.addEventListener('click', (e) => {
-                let target = e.target;
-                let project = target.parentElement;
-                let currentProjectTitle = e.target.closest('div').id;
-                // prompt new title
-                let newTitle = prompt('New title?', currentProjectTitle);
-                // keep same if empty input or cancel
-                if (newTitle !== null && newTitle.length) {
-                    // change title in list
-                    this.list.getProject(currentProjectTitle).setTitle(newTitle);
-                    // change title and id on DOM
-                    project.id = newTitle;
-                    target.nextElementSibling.textContent = newTitle;
-                }
-            });
-        });
-
-        // All
-
-        // Named project (School, Work, Hobbies, Faith)
     }
 
-    // project data
-    getProjectData() {
-        let projectForm = document.querySelector('.project-form');
-        if (projectForm) {
-            this.unhideModal(projectForm);
-            return;
-        }
+    handleDeleteProject(projectDiv) {
+        let title = projectDiv.id;
+        let wasCurrentProject = projectDiv.classList.contains('bolded');
 
-        // construct modal
-        let modalOverlay = document.querySelector('.modal-overlay') ? document.querySelector('.modal-overlay') : document.createElement('div');
-        modalOverlay.classList.add('modal-overlay');
-        modalOverlay.classList.remove('hidden');
-        let modal = document.createElement('dialog');
-        modal.classList.add('modal');
-        let form = document.createElement('form');
-        form.method = 'dialog';
-        form.classList.add('project-form');
-        let formContainer = document.createElement('div');
-        formContainer.classList.add('form-container');
+        this.list.deleteProject(title);
+        this.renderer.removeProject(projectDiv);
 
-        form.append(formContainer);
-        modal.append(form);
-        modalOverlay.append(modal);
-        
-        // form top
-        let formTop = document.createElement('div');
-        formTop.classList.add('form-top');
-        let heading = document.createElement('h1');
-        heading.textContent = 'Add Project';
-        let closeForm = document.createElement('button');
-        closeForm.classList.add('close-form');
-        closeForm.textContent = 'x';
-
-        closeForm.addEventListener('click', () => {
-            this.hideProjectData();
-            /*
-            // set required inputs to disabled (prevent blocked state)
-            let inputs = modal.querySelectorAll('input');
-            inputs.forEach((input) => {
-                if (input.required === true) {
-                    input.disabled = true;
-                }
-            });
-            */
-        });
-
-        formTop.append(heading, closeForm);
-
-        // form bottom
-        let formBottom = document.createElement('div');
-        formBottom.classList.add('form-bottom');
-
-        // title
-        let titleFormControl = document.createElement('div');
-        titleFormControl.classList.add('form-control');
-        let title = document.createElement('label');
-        title.htmlFor = 'title';
-        let titleInput = document.createElement('input');
-        titleInput.type = 'text';
-        titleInput.name = 'title';
-        titleInput.id = 'title';
-        // titleInput.required = true;
-        let titleText = document.createElement('span');
-        titleText.textContent = 'Title';
-
-        titleFormControl.append(title, titleInput, titleText);
-
-        // icon
-        let iconFormControl = document.createElement('div');
-        iconFormControl.classList.add('form-control');
-        let icon = document.createElement('label');
-        icon.htmlFor = 'icon';
-        let iconInput = document.createElement('input');
-        iconInput.type = 'url'; // TODO: change to file input, handle in project.js
-        iconInput.name = 'icon';
-        iconInput.id = 'icon';
-        let iconText = document.createElement('span');
-        iconText.textContent = 'Icon URL';
-
-        iconFormControl.append(icon, iconInput, iconText);
-
-        // submit
-        let submit = document.createElement('button');
-        submit.classList.add('submit');
-        submit.type = 'submit';
-        submit.textContent = 'Submit';
-
-        submit.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.submitProject(e);
-        });
-
-        formBottom.append(titleFormControl, iconFormControl, submit);
-
-
-        formContainer.append(formTop, formBottom);
-
-        document.body.append(modalOverlay);
-        modal.showModal();
-    }
-
-    hideProjectData() {
-        let modal = document.querySelector('dialog');
-        let modalOverlay = document.querySelector('.modal-overlay');
-
-        modal.close();
-        modalOverlay.classList.add('hidden');
-    }
-
-    submitProject(e) {
-        // get data
-        let form = document.querySelector('.project-form');
-        const formData = new FormData(form);
-        let title = formData.get('title');
-        let icon = formData.get('icon');
-
-        // display message if input/s empty
-        if (title.length === 0) {
-            e.preventDefault();
-            alert('Please fill out title');
-            return;
-        }
-
-        // close form after getting data
-        let modal = document.querySelector('dialog');
-        let modalOverlay = document.querySelector('.modal-overlay');
-        modal.close();
-        modalOverlay.classList.add('hidden');
-
-        // reset form
-        form.reset();
-
-        // add project to DOM
-        this.addProject(title, icon);
-    }
-
-    addProject(title, image) {
-        // add project to list
-        let toAdd = new Project(title, image, []);
-        this.list.addProject(toAdd);
-
-        // add project to DOM
-        let projects = document.querySelector('.projects');
-        let li = document.createElement('li');
-        let projectContainer = document.createElement('div');
-        projectContainer.id = title;
-        let img = document.createElement('img');
-        img.src = image;
-        img.alt = title;
-        img.width = '32';
-        let link = document.createElement('a');
-        link.textContent = title.toUpperCase();
-        link.href = '#';
-
-        projectContainer.append(img, link);
-        li.append(projectContainer);
-        projects.append(li);
-
-        // save to storage
-        this.storage.save(this.list);
-    }
-    deleteProject(project) {
-        let wasCurrentProject = project.classList.contains('bolded');
-        let projectId = project.id;
-
-        // remove project from list
-        this.list.deleteProject(projectId);
-
-        // remove project from DOM
-        project.parentElement.remove();
-
-        // if deleted project was current view, switch to inbox and refresh
         if (wasCurrentProject) {
-            // remove bolded from all projects
-            document.querySelectorAll('.sidebar li').forEach(li => {
-                li.querySelector('div').classList.remove('bolded');
-            });
-            // set inbox to current (bolded)
-            let inbox = document.querySelector('#inbox');
+            document.querySelectorAll('.sidebar li div').forEach(div => div.classList.remove('bolded'));
+            let inbox = document.querySelector('#' + SYSTEM_PROJECTS.INBOX);
             if (inbox) {
                 inbox.classList.add('bolded');
-                // refresh task list to show inbox tasks
-                this.displayPage('inbox');
+                this.displayPage(SYSTEM_PROJECTS.INBOX);
             }
         }
-
-        // save to storage
         this.storage.save(this.list);
     }
 
-    editProject(title, newTitle, image) {
-        this.list.getProject(title).setTitle(newTitle);
-
-        let project = document.querySelector('.' + title);
-        project.classList.remove(title);
-        project.classList.add(newTitle);
-
-        let img = project.querySelector('img');
-        if (image) img.src = image;
-        img.alt = newTitle;
-        let link = project.querySelector('a');
-        link.textContent = newTitle.toUpperCase();
-
-        // save to storage
-        this.storage.save(this.list);
-    }
-
-
-    addTaskEventListeners() {
-        // set inbox bolded by default
-        let inbox = document.querySelector('#inbox');
-        inbox.classList.add('bolded');
-
-        let taskContainer = document.querySelector('.task-container');
-
-        // Add task
-        let addTask = document.querySelector('.add-task > button');
-        addTask.addEventListener('click', () => {
-            this.getTaskData();
-        });
-        
-        // Other listeners (priority, title, dropdown, delete, date, check)
-        taskContainer.addEventListener('click', (e) => {
-            let clickTarget = e.target;
-
-            // get current project
-            let currentProject = document.querySelector('.bolded');
-            let project = this.list.getProject(currentProject.id);
-
-            // exit if not task related click
-            if (!clickTarget.closest('.task') && !clickTarget.closest('.task-expanded')) {
-                return;
-            }
-
-            // get current task
-            let currentTaskElement = clickTarget.closest('.task') ? clickTarget.closest('.task') : clickTarget.closest('.task-expanded');
-            let currentTaskTitle = currentTaskElement.querySelector('.title').textContent;
-            let currentTask = project.getTodo(currentTaskTitle);
-
-            // priority
-            if (clickTarget.matches('.priority')) {
-                // change task priority
-                let priority = currentTask.getPriority();
-                if (priority === 'G') {
-                    currentTask.setPriority('Y');
-                } else if (priority === 'Y') {
-                    currentTask.setPriority('R');
-                } else {
-                    currentTask.setPriority('G');
-                }
-                // update element display
-                clickTarget.classList.remove('G', 'Y', 'R');
-                clickTarget.classList.add(currentTask.getPriority());
-                clickTarget.textContent = currentTask.getPriority();
-                // save to storage
-                this.storage.save(this.list);
-            }
-
-            // title
-            if (clickTarget.matches('.title') && clickTarget.matches('p')) {
-                // change task title
-                let newTitle = prompt('New title?', currentTaskTitle);
-                // keep same if empty input or cancel
-                if (newTitle !== null && newTitle.length) {
-                    currentTask.setTitle(newTitle);
-
-                    // update element display
-                    clickTarget.textContent = newTitle;
-
-                    // save to storage
-                    this.storage.save(this.list);
-                }
-            }
-            
-            // dropdown
-            if (clickTarget.matches('.dropdown') || clickTarget.matches('.dropdown img')) {
-                if (currentTaskElement.classList.contains('task')) {
-                    this.showDescription(currentTaskElement);
-                } else if (currentTaskElement.classList.contains('task-expanded')) {
-                    this.hideDescription(currentTaskElement);
-                }
-            }
-
-            // delete
-            if (clickTarget.matches('.delete') || clickTarget.matches('.delete img')) {
-                // remove from all projects (inbox, today, week, month, all, and current)
-                this.removeTaskFromAllProjects(currentTaskTitle);
-
-                // remove from DOM
-                currentTaskElement.remove();
-
-                // save to storage
-                this.storage.save(this.list);
-            }
-
-            // date
-            if (clickTarget.matches('.date')) {
-                // change task date
-                let currentDate = clickTarget.textContent;
-                let newDate = prompt('New date? (format: yyyy-MM-dd)', currentDate);
-
-                // keep same if empty input
-                if (newDate !== null && newDate.length) {
-                    currentTask.setDueDate(newDate);
-
-                    // update element display using date-fns
-                    clickTarget.textContent = format(new Date(newDate), "M/d/yy");
-
-                    // save to storage
-                    this.storage.save(this.list);
-                }
-            }
-
-            // check
-            if ((clickTarget.matches('.checkbox') || clickTarget.matches('.checkbox img'))) {
-                this.checkTask(e);
-                // save to storage
-                this.storage.save(this.list);
-            }
-        });
-
-        // Change priority
-
-        // Change title
-
-        // Dropdown/description
-
-        // Delete
-
-        // Change Date
-
-        // Check
-
-    }
-
-    // task data
-    getTaskData() {
-        // if task modal already exists unhide
-        let taskForm = document.querySelector('.task-form');
-        if (taskForm) {
-            this.unhideModal(taskForm);
-            return;
-        }
-
-        // create task modal
-        // construct modal
-        let modalOverlay = document.querySelector('.modal-overlay') ? document.querySelector('.modal-overlay') : document.createElement('div');
-        modalOverlay.classList.add('modal-overlay');
-        modalOverlay.classList.remove('hidden');
-        let modal = document.createElement('dialog');
-        modal.classList.add('modal');
-        let form = document.createElement('form');
-        form.method = 'dialog';
-        form.classList.add('task-form');
-        let formContainer = document.createElement('div');
-        formContainer.classList.add('form-container');
-
-        form.append(formContainer);
-        modal.append(form);
-        modalOverlay.append(modal);
-        
-        // form top
-        let formTop = document.createElement('div');
-        formTop.classList.add('form-top');
-        let heading = document.createElement('h1');
-        heading.textContent = 'Create Todo';
-        let closeForm = document.createElement('button');
-        closeForm.classList.add('close-form');
-        closeForm.textContent = 'x';
-
-        // close
-        closeForm.addEventListener('click', (e) => {
-            this.hideTaskData();
-
-            /*
-            // set required inputs to disabled (prevent blocked state)
-            let inputs = modal.querySelectorAll('input');
-            inputs.forEach((input) => {
-                if (input.required === true) {
-                    input.disabled = true;
-                }
-            });
-            */
-        });
-
-        formTop.append(heading, closeForm);
-
-        // form bottom
-        let formBottom = document.createElement('div');
-        formBottom.classList.add('form-bottom');
-
-        // priority
-        let priorityFormControl = document.createElement('div');
-        priorityFormControl.classList.add('form-control');
-        priorityFormControl.classList.add('radio');
-        // green
-        let priorityGreen = document.createElement('label');
-        priorityGreen.htmlFor = 'green';
-        let priorityInputGreen = document.createElement('input');
-        priorityInputGreen.type = 'radio';
-        priorityInputGreen.name = 'priority';
-        priorityInputGreen.value = 'G';
-        priorityInputGreen.id = 'green';
-        // priorityInputGreen.required = true;
-        let priorityTextGreen = document.createElement('span');
-        priorityTextGreen.textContent = 'Green';
-        priorityTextGreen.classList.add('green');
-
-        priorityFormControl.append(priorityGreen, priorityInputGreen, priorityTextGreen);
-
-        // yellow
-        let priorityYellow = document.createElement('label');
-        priorityYellow.htmlFor = 'yellow';
-        let priorityInputYellow = document.createElement('input');
-        priorityInputYellow.type = 'radio';
-        priorityInputYellow.name = 'priority';
-        priorityInputYellow.value = 'Y';
-        priorityInputYellow.id = 'yellow';
-        // priorityInputYellow.required = true;
-        let priorityTextYellow = document.createElement('span');
-        priorityTextYellow.textContent = 'Yellow';
-        priorityTextYellow.classList.add('yellow');
-
-        priorityFormControl.append(priorityYellow, priorityInputYellow, priorityTextYellow);
-
-        // red
-        let priorityRed = document.createElement('label');
-        priorityRed.htmlFor = 'red';
-        let priorityInputRed = document.createElement('input');
-        priorityInputRed.type = 'radio';
-        priorityInputRed.name = 'priority';
-        priorityInputRed.value = 'R';
-        priorityInputRed.id = 'red';
-        // priorityInputRed.required = true;
-        let priorityTextRed = document.createElement('span');
-        priorityTextRed.textContent = 'Red';
-        priorityTextRed.classList.add('red');
-
-        priorityFormControl.append(priorityRed, priorityInputRed, priorityTextRed);
-
-
-        // title
-        let titleFormControl = document.createElement('div');
-        titleFormControl.classList.add('form-control');
-        let title = document.createElement('label');
-        title.htmlFor = 'title';
-        let titleInput = document.createElement('input');
-        titleInput.type = 'text';
-        titleInput.name = 'title';
-        titleInput.id = 'title';
-        // titleInput.required = true;
-        let titleText = document.createElement('span');
-        titleText.textContent = 'Title';
-
-        titleFormControl.append(title, titleInput, titleText);
-
-
-        // date
-        let dateFormControl = document.createElement('div');
-        dateFormControl.classList.add('form-control');
-        let date = document.createElement('label');
-        date.htmlFor = 'date';
-        let dateInput = document.createElement('input');
-        dateInput.type = 'date';
-        dateInput.name = 'date';
-        dateInput.id = 'date';
-        let dateText = document.createElement('span');
-        dateText.textContent = 'Date';
-
-        dateFormControl.append(date, dateInput, dateText);
-
-        
-        // description
-        let descriptionFormControl = document.createElement('div');
-        descriptionFormControl.classList.add('form-control');
-        let description = document.createElement('label');
-        description.htmlFor = 'description';
-        let descriptionInput = document.createElement('input');
-        descriptionInput.type = 'text';
-        descriptionInput.name = 'description';
-        descriptionInput.id = 'description';
-        let descriptionText = document.createElement('span');
-        descriptionText.textContent = 'Description';
-
-        descriptionFormControl.append(description, descriptionInput, descriptionText);
-
-        // submit
-        let submit = document.createElement('button');
-        submit.classList.add('submit');
-        submit.type = 'submit';
-        submit.textContent = 'Submit';
-
-        submit.addEventListener('click', (e) => {
-            this.submitTask(e);
-        });
-
-        formBottom.append(priorityFormControl, titleFormControl, dateFormControl, descriptionFormControl, submit);
-
-
-        formContainer.append(formTop, formBottom);
-
-        document.body.append(modalOverlay);
-        modal.showModal();
-    }
-
-    hideTaskData() {
-        let modal = document.querySelector('dialog');
-        let modalOverlay = document.querySelector('.modal-overlay');
-
-        modal.close();
-        modalOverlay.classList.add('hidden');
-    }
-
-    submitTask(e) {
-        // get data
-        let form = document.querySelector('.task-form');
-        const formData = new FormData(form);
-        let priority = formData.get('priority');
-        let title = formData.get('title');
-        let date = formData.get('date');
-        let description = formData.get('description');
-
-        // display message if input/s empty
-        if (!priority || title.length === 0 || !date) {
-            e.preventDefault();
-            alert('Please fill out priority, title & date');
-            return;
-        }
-
-        // close form after getting data
-        let modal = document.querySelector('dialog');
-        let modalOverlay = document.querySelector('.modal-overlay');
-        modal.close();
-        modalOverlay.classList.add('hidden');
-
-        // add project to DOM
-        this.addTask(e);
-    }
-    
-    addTask(e) {
-        // get data
-        let form = document.querySelector('.task-form');
-        const formData = new FormData(form);
-        let priority = formData.get('priority');
-        let title = formData.get('title');
-        let date = formData.get('date');
-        let description = formData.get('description');
-
-        // reset form
-        form.reset();
-
-        // create task instance
+    // --- Task Logic ---
+    handleAddTask(priority, title, date, description) {
         let task = new Todo(priority, title, date, description);
-        // get current project
-        let currentProject = document.querySelector('.bolded'); // or .active or .current ...
-        let project = this.list.getProject(currentProject.id);
+        
+        let currentProjectDiv = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProjectDiv ? currentProjectDiv.id : SYSTEM_PROJECTS.INBOX);
 
-        // add task to current project if not already present
         if (!project.containsTodo(task)) {
             project.addTodo(task);
         }
 
-        // updatePendingTasks handles adding to inbox/today/week/month/all
         this.updatePendingTasks(task);
-
-        // add task DOM
-        let taskList = document.querySelector('.task-list');
-
-        let toAdd = this.createTask(priority, title, date, description);
-
-        taskList.appendChild(toAdd);
-
-        // refresh page
-        this.displayPage(currentProject.id);
-
-        // save to storage
-        this.storage.save(this.list);
-    }
-    deleteTask(e) {
-        let clickTarget = e.target;
-        let task = clickTarget.parentElement.querySelector('.title').textContent;
-        let toDelete = clickTarget.parentElement.parentElement;
-        // remove from all projects
-        this.removeTaskFromAllProjects(task);
-        // delete from DOM
-        toDelete.remove();
-        // save to storage
+        this.renderer.appendTask(task);
+        this.displayPage(currentProjectDiv ? currentProjectDiv.id : SYSTEM_PROJECTS.INBOX);
         this.storage.save(this.list);
     }
 
-    /**
-     * Remove a task from ALL projects (inbox, today, week, month, all, and custom)
-     * @param {string} taskTitle - Title of task to remove
-     */
+    handleTaskPriorityChange(taskTitle, clickTarget) {
+        let currentProjectDiv = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProjectDiv ? currentProjectDiv.id : SYSTEM_PROJECTS.INBOX);
+        let task = project.getTodo(taskTitle);
+
+        if (task) {
+            let priority = task.getPriority();
+            let newPriority = priority === 'G' ? 'Y' : (priority === 'Y' ? 'R' : 'G');
+            task.setPriority(newPriority);
+            this.renderer.updateTaskPriority(clickTarget, newPriority);
+            this.storage.save(this.list);
+        }
+    }
+
+    handleTaskTitleChange(oldTitle, newTitle, clickTarget) {
+        let currentProjectDiv = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProjectDiv ? currentProjectDiv.id : SYSTEM_PROJECTS.INBOX);
+        let task = project.getTodo(oldTitle);
+
+        if (task) {
+            task.setTitle(newTitle);
+            this.renderer.updateTaskTitle(clickTarget, newTitle);
+            this.storage.save(this.list);
+        }
+    }
+
+    handleTaskDateChange(taskTitle, newDate, clickTarget) {
+        let currentProjectDiv = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProjectDiv ? currentProjectDiv.id : SYSTEM_PROJECTS.INBOX);
+        let task = project.getTodo(taskTitle);
+
+        if (task) {
+            task.setDueDate(newDate);
+            this.renderer.updateTaskDate(clickTarget, newDate);
+            this.storage.save(this.list);
+        }
+    }
+
+    handleDeleteTask(taskTitle, taskElement) {
+        this.removeTaskFromAllProjects(taskTitle);
+        this.renderer.removeTask(taskElement);
+        this.storage.save(this.list);
+    }
+
+    handleTaskCheck(taskTitle, checkboxElement) {
+        let currentProjectDiv = document.querySelector('.bolded');
+        let project = this.list.getProject(currentProjectDiv ? currentProjectDiv.id : SYSTEM_PROJECTS.INBOX);
+        let task = project.getTodo(taskTitle);
+
+        if (task) {
+            task.setChecked();
+            this.renderer.toggleCheckbox(checkboxElement, task.getChecked());
+            this.storage.save(this.list);
+        }
+    }
+
     removeTaskFromAllProjects(taskTitle) {
-        const projectNames = ['inbox', 'today', 'week', 'month', 'all'];
-        // Also remove from all custom projects
+        const projectNames = [SYSTEM_PROJECTS.INBOX, SYSTEM_PROJECTS.TODAY, SYSTEM_PROJECTS.WEEK, SYSTEM_PROJECTS.MONTH, SYSTEM_PROJECTS.ALL];
         this.list.getProjects().forEach(project => {
             project.deleteTodo(taskTitle);
         });
-        // Also remove from system projects
         projectNames.forEach(name => {
             const project = this.list.getProject(name);
             if (project) {
@@ -1281,176 +191,64 @@ export default class UI {
         });
     }
 
-    showDescription(task) {
-        task.classList.remove('task');
-        task.classList.add('task-expanded');
-
-        let dropdown = task.querySelector('.dropdown img');
-        dropdown.src = dropUpIconPath;
-
-        let description = task.querySelector('.description');
-        if (description === null) return;
-        description.classList.remove('hidden');
-    }
-    hideDescription(task) {
-        task.classList.remove('task-expanded');
-        task.classList.add('task');
-
-        let dropdown = task.querySelector('.dropdown img');
-        dropdown.src = dropdownIconPath;
-
-        let description = task.querySelector('.description');
-        if (description === null) return;
-        description.classList.add('hidden');
-    }
-
-    checkTask(e) {
-        // get current project
-        let currentProject = document.querySelector('.bolded');
-        let project = this.list.getProject(currentProject.id);
-        
-        // get current task
-        let checkbox = e.target.closest('.checkbox');
-        // check if task expanded
-        let task = checkbox.closest('.task')
-        ? checkbox.closest('.task').querySelector('.title').textContent 
-        : checkbox.closest('.task-expanded').querySelector('.title').textContent;
-
-        // if (project.getTodo(task).getChecked()) return;
-        // task set checked
-        project.getTodo(task).setChecked();
-
-        // uncheck if already checked
-        if (project.getTodo(task).getChecked()) {
-            checkbox.replaceChildren();
-            return;
-        }
-
-        // set checked DOM
-        let check = document.createElement('img');
-        check.src = checkIconPath;
-        check.alt = 'check';
-        
-        // check checkbox
-        checkbox.append(check);
-    }
-
-    // keydown listeners
-    addKeyEventListeners() {
-        document.addEventListener('keydown', (e) => {
-            let key = e.key;
-            let modalOverlay = document.querySelector('.modal-overlay');
-
-            let modals = document.querySelectorAll('dialog');
-            let openModal;
-            for (let modal of modals) {
-                if (modal.open) openModal = modal;
-            }
-
-            // escape to close form
-            if (key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
-                e.preventDefault();
-
-                let formType = openModal.querySelector('form');
-                
-                if (formType.classList.contains('account-form')) {
-                    this.hideAccount();
-                } else if (formType.classList.contains('project-form')) {
-                    this.hideProjectData();
-                } else if (formType.classList.contains('task-form')) {
-                    this.hideTaskData();
-                }
-            }
-
-            // enter to submit form
-            if (key === 'Enter' && !modalOverlay.classList.contains('hidden')) {
-                let formType = openModal.querySelector('form');
-                
-                if (formType.classList.contains('account-form')) {
-                    e.preventDefault();
-                    this.submitAccount(e);
-                } else if (formType.classList.contains('project-form')) {
-                    e.preventDefault();
-                    this.submitProject(e);
-                } else if (formType.classList.contains('task-form')) {
-                    e.preventDefault();
-                    this.submitTask(e);
-                }
-            }
-        });
-    }
-
+    // --- Time/Date Logic ---
     addPendingTasks() {
-        // Today, Week, Month, Inbox, All
-
-        // get all projects
         let allProjects = this.list.getProjects();
-        // get all todos from custom projects only (exclude system projects to avoid duplicates)
         let allTodos = [];
-        const systemProjects = ['inbox', 'today', 'week', 'month', 'all'];
+        const systemProjects = [SYSTEM_PROJECTS.INBOX, SYSTEM_PROJECTS.TODAY, SYSTEM_PROJECTS.WEEK, SYSTEM_PROJECTS.MONTH, SYSTEM_PROJECTS.ALL];
+        
         for (let project of allProjects) {
             if (!systemProjects.includes(project.getTitle())) {
                 allTodos.push(...project.getTodos());
             }
         }
 
-        // order todos by date
         this.sortTasksAsc(allTodos);
-        // add all todos to all project
-        let allProject = this.list.getProject('all');
-        allProject.setTodos(allTodos);
+        let allProject = this.list.getProject(SYSTEM_PROJECTS.ALL);
+        if (allProject) allProject.setTodos(allTodos);
 
-        // add todos to today/week/month and inbox
         for (let todo of allTodos) {
             this.updatePendingTasks(todo);
         }
     }
 
     updatePendingTasks(todo) {
-        // initialize default projects (inbox, today, week, month, all)
-        let inboxProject = this.list.getProject('inbox');
-        let todayProject = this.list.getProject('today');
-        let weekProject = this.list.getProject('week');
-        let monthProject = this.list.getProject('month');
-        let allProject = this.list.getProject('all');
+        let inboxProject = this.list.getProject(SYSTEM_PROJECTS.INBOX);
+        let todayProject = this.list.getProject(SYSTEM_PROJECTS.TODAY);
+        let weekProject = this.list.getProject(SYSTEM_PROJECTS.WEEK);
+        let monthProject = this.list.getProject(SYSTEM_PROJECTS.MONTH);
+        let allProject = this.list.getProject(SYSTEM_PROJECTS.ALL);
 
-        // get/format date using date-fns
         let currentDate = new Date(todo.getDueDate());
 
-        // add to all project first (if not already present)
-        if (!allProject.containsTodo(todo)) {
+        if (allProject && !allProject.containsTodo(todo)) {
             allProject.addTodo(todo);
         }
 
-        // add tasks before or on today's date to inbox
-        if ((isToday(currentDate) || isBefore(currentDate, new Date()))
-            && !inboxProject.containsTodo(todo)) {
+        if (inboxProject && (isToday(currentDate) || isBefore(currentDate, new Date())) && !inboxProject.containsTodo(todo)) {
             inboxProject.addTodo(todo);
-            // resort todos by date ascending
             this.sortTasksAsc(inboxProject.getTodos());
         }
-        // add to day/week/month if matches
-        if (isToday(currentDate) && !todayProject.containsTodo(todo)) {
-            // today
+
+        if (todayProject && isToday(currentDate) && !todayProject.containsTodo(todo)) {
             todayProject.addTodo(todo);
             this.sortTasksAsc(todayProject.getTodos());
         }
-        // week (for today or other days this week)
-        if (isThisWeek(currentDate) && !weekProject.containsTodo(todo)) {
+
+        if (weekProject && isThisWeek(currentDate) && !weekProject.containsTodo(todo)) {
             weekProject.addTodo(todo);
             this.sortTasksAsc(weekProject.getTodos());
         }
-        // month (for today, this week, or other days this month)
-        if (isThisMonth(currentDate) && !monthProject.containsTodo(todo)) {
+
+        if (monthProject && isThisMonth(currentDate) && !monthProject.containsTodo(todo)) {
             monthProject.addTodo(todo);
             this.sortTasksAsc(monthProject.getTodos());
         }
 
-        // Refresh the current view if it's one of the date-based projects
-        let currentProject = document.querySelector('.bolded');
-        if (currentProject) {
-            const currentProjectId = currentProject.id;
-            if (['inbox', 'today', 'week', 'month', 'all'].includes(currentProjectId)) {
+        let currentProjectDiv = document.querySelector('.bolded');
+        if (currentProjectDiv) {
+            const currentProjectId = currentProjectDiv.id;
+            if ([SYSTEM_PROJECTS.INBOX, SYSTEM_PROJECTS.TODAY, SYSTEM_PROJECTS.WEEK, SYSTEM_PROJECTS.MONTH, SYSTEM_PROJECTS.ALL].includes(currentProjectId)) {
                 this.displayPage(currentProjectId);
             }
         }
@@ -1460,37 +258,3 @@ export default class UI {
         todos.sort((a, b) => a.dateFormatted() - b.dateFormatted());
     }
 }
-
-/* TODO:
-*/
-
-/* Possible features/fixes
-- color/theme switching
-- set check mark to toggle
-- fetch tasks with the same title
-- create modal function
-- icon selection/library
-- deletes/edits working across all projects for the same task
-- strictly refactor SOLID (delegate functionality to only respective module)
-*/
-
-/* DONE
-- project mouse pointer appearing
-- edit project
-- safeguard against empty input
-- display description on load for placeholder task expanded
-- dropdown arrow switching
-- add accessibility for keypress
-- activate all event listeners
-- refactor add project/event listener
-- fix delete permanent/default projects ('inbox', 'today', 'week', 'month') + bolded bug
-- refactor event delegation (one event listener, bubbling)
-- use .toggle and .matches methods
-- web url icon input
-- date fn
-- fix double adds when added to current project
-- add to all project and refresh all tasks when new one added (with date sorted)
-- implement all project
-- inbox functionality (daily tasks)
-- STORAGE
-*/

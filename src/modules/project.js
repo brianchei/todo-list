@@ -3,24 +3,6 @@
 - export project
 */
 
-/* Pseudocode
-CLASS Project
-    INITIALIZE title, todos
-
-    SET name
-    GET name
-
-    SET todos
-    GET todos
-
-    ADD todo
-    DELETE todo
-
-    GET todo
-
-    CONTAINS todo
-*/
-
 export default class Project {
     constructor(title, image, todos = []) {
         this.title = title;
@@ -51,15 +33,8 @@ export default class Project {
     }
 
     getTodo(title) {
-        /*
-        this.todos.forEach((todo) => {
-            if (todo.title === title) {
-                return todo;
-            }
-        });
-        */
         for (const todo of this.todos) {
-            if (todo.title === title) {
+            if (todo.getTitle() === title) {
                 return todo;
             }
         }
@@ -69,7 +44,7 @@ export default class Project {
         for (let todo of this.todos) {
             // Compare by title AND dueDate to avoid false duplicates
             // (same title can exist on different dates)
-            if (todo.title === task.title && todo.dueDate === task.dueDate) {
+            if (todo.getTitle() === task.getTitle() && todo.getDueDate() === task.getDueDate()) {
                 return true;
             }
         }

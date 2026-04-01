@@ -3,26 +3,6 @@
 - export list
 */
 
-/* Pseudocode
-CLASS List
-    INITIALIZE title, projects
-    
-    SET title
-    GET title
-
-    SET projects
-    GET projects
-
-    ADD project
-    DELETE project
-
-    GET project
-
-    CONTAINS project
-
-    UPDATE project
-*/
-
 export default class List {
     constructor(title, projects) {
         this.title = title;
@@ -47,20 +27,12 @@ export default class List {
         this.projects.push(project);
     }
     deleteProject(title) {
-        let newProjects = this.projects.filter((project) => project.title !== title);
+        let newProjects = this.projects.filter((project) => project.getTitle() !== title);
         this.projects = newProjects;
         return newProjects;
     }
 
     getProject(title) {
-        /*
-        this.projects.forEach((project) => {
-            if (project.getTitle() === title) {
-                return project;
-            }
-        });
-        return title;
-        */
         for (const project of this.projects) {
             if (project.getTitle() === title) {
                 return project;
@@ -69,19 +41,9 @@ export default class List {
     }
 
     containsProject(title) {
-        if (this.projects.find(project => project.title === title)) {
+        if (this.projects.find(project => project.getTitle() === title)) {
             return true;
         }
         return false;
     }
-
-
-    updateTodayProjects() {
-        // TODO
-    }
-
-    updateWeekProjects() {
-        // TODO
-    }
-
 }
